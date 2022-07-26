@@ -9,7 +9,9 @@ A Client of [KenkoGoServer](https://github.com/AkagiYui/KenkoGoServer)
 ## 功能介绍 Introduction
 
 该项目只是一个简单的 HTTP 与 WebSocket 客户端，你也可以编写属于你的 KenkoGoClient，
-或者使用 [NoneBot2](https://v2.nonebot.dev/)
+或者使用[Web版](https://kenkogo.akagiyui.com) [kenkogo-webui](https://github.com/AkagiYui/kenkogo-webui)
+
+不过还是建议使用 [NoneBot2](https://v2.nonebot.dev/) 等功能更完善的客户端。
 
 ## 快速开始 Quick Start
 
