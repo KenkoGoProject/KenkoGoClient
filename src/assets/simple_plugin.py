@@ -10,6 +10,7 @@ class SimplePlugin:
         self.api = api
         self.name = '简单插件'
         self.description = '这是一个插件模板'
+        self.version = '1.0.0'
 
     def init(self):
         """插件初始化，你可以在这里初始化一些依赖"""

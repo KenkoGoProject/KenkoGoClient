@@ -32,7 +32,7 @@ class KenkoGo(metaclass=SingletonType):
         self.websocket_app = WebSocketApp(
             url=f'ws://{user_config.host}:{user_config.port}/client',
             header={
-                'Authorization': 'Bearer None'
+                'Authorization': 'Bearer None'  # TODO: 鉴权
             },
             on_open=self.__on_websocket_open,
             on_message=self.__on_websocket_message,
@@ -43,10 +43,11 @@ class KenkoGo(metaclass=SingletonType):
             on_cont_message=self.__on_websocket_cont_message,
             on_data=self.__on_websocket_data,
         )
+        self.websocket_connected = False
 
     def start(self):
         """启动插件与WebSocket连接"""
-        self.plugin_handler.enable_plugins()  # 启用插件
+        self.plugin_handler.enable_all_plugin()  # 启用插件
         self.__start_websocket_thread()  # 启动WebSocket连接
         self.log.info(f'{Global().app_name} started.')
 
@@ -58,35 +59,44 @@ class KenkoGo(metaclass=SingletonType):
         self.http_thread.start()
 
     def stop(self):
-        """停止WebSocket服务"""
+        """停止所有插件与WebSocket连接"""
         self.log.debug(f'{Global().app_name} stopping.')
-        self.plugin_handler.disable_plugins()
+        self.plugin_handler.disable_all_plugin()
         if isinstance(self.http_thread, ThreadEx):
             # TODO: 实现优雅的关闭
             self.http_thread.kill()
         self.log.info(f'{Global().app_name} stopped, see you next time.')
 
     def __on_websocket_open(self, _):
+        self.websocket_connected = True
         self.log.info('KenkoGoServer Connected!')
+        self.plugin_handler.broadcast_event('connected')
 
     def __on_websocket_message(self, _, message):
         if isinstance(message, bytes):
-            message = message.decode('utf-8')
-        message = json.loads(message)
+            message = message.decode('utf-8').strip()
+        try:
+            message = json.loads(message)
+        except json.JSONDecodeError:
+            self.log.error(f'Received invalid message: {message}')
+            return
 
         if message['post_type'] == 'meta_event':
             if message['meta_event_type'] == 'heartbeat':
-                self.log.debug('Received heartbeat')
+                # self.log.debug('Received heartbeat')
+                ...
         else:
             self.log.debug(f'Received message: {message}')
-            if self.plugin_handler.plugins_loaded:
-                self.plugin_handler.broadcast_message(message)
+            self.plugin_handler.broadcast_event('message', message)
 
     def __on_websocket_error(self, _, error):
         self.log.error(error)
 
     def __on_websocket_close(self, _, code, msg):
         self.log.debug(f'Disconnected from server: {code}, {msg}')
+        if self.websocket_connected:
+            self.plugin_handler.broadcast_event('disconnected')
+        self.websocket_connected = False
         time.sleep(3)
         self.__start_websocket_thread()
 
@@ -95,7 +105,7 @@ class KenkoGo(metaclass=SingletonType):
         ...
 
     def __on_websocket_pong(self, _):
-        # self.log.debug('Received pong')
+        self.log.debug('Received pong')
         ...
 
     def __on_websocket_cont_message(self, _, message):

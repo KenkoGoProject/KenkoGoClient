@@ -1,4 +1,5 @@
 import argparse
+import contextlib
 import signal
 import sys
 
@@ -94,6 +95,11 @@ class Main(metaclass=SingletonType):
 
 
 if __name__ == '__main__':
+    with contextlib.suppress(Exception):
+        # TODO: 补上linux
+        import ctypes
+        ctypes.windll.kernel32.SetConsoleTitleW(f'{Global().app_name} {Global().version_str}')
+
     # 让PyCharm调试输出的信息换行
     if sys.gettrace() is not None:
         print('Debug Mode')

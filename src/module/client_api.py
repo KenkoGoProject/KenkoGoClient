@@ -1,0 +1,3 @@
+class ClientApi:
+    ...
+    # TODO: 日志/信息/重启ws

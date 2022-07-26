@@ -14,6 +14,7 @@ class HelloWorld(SimplePlugin):
         self.api = api
         self.name = '你好，世界！'
         self.description = '这是一个插件示例'
+        self.version = '1.0.0'
 
     def init(self):
         """插件初始化，你可以在这里初始化一些依赖"""
