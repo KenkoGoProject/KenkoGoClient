@@ -1,0 +1,3 @@
+*.py    eol=lf
+*.yml    eol=lf
+*.yaml    eol=lf
