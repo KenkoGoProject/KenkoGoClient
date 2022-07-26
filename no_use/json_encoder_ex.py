@@ -1,6 +1,6 @@
 import json
 
-from assets.server_status import ServerStatus
+from no_use.server_status import ServerStatus
 
 
 class JsonEncoderEx(json.JSONEncoder):

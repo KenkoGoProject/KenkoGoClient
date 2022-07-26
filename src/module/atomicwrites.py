@@ -8,34 +8,21 @@ import io
 import os
 import sys
 import tempfile
+from os import fspath
 
 try:
-    import fcntl
+    import fcntl  # Linux only
 except ImportError:
     fcntl = None
 
-# `fspath` was added in Python 3.6
-try:
-    from os import fspath
-except ImportError:
-    fspath = None
 
-__version__ = '1.4.1'
-
-
-PY2 = sys.version_info[0] == 2
-
-text_type = unicode if PY2 else str  # noqa
+text_type = str  # noqa
+DEFAULT_MODE = 'w'
+_proper_fsync = os.fsync
 
 
 def _path_to_unicode(x):
     return x if isinstance(x, text_type) else x.decode(sys.getfilesystemencoding())
-
-
-DEFAULT_MODE = "wb" if PY2 else "w"
-
-
-_proper_fsync = os.fsync
 
 
 if sys.platform != 'win32':
@@ -114,7 +101,7 @@ def move_atomic(src, dst):
     return _move_atomic(src, dst)
 
 
-class AtomicWriter(object):
+class AtomicWriter:
     """
     A helper class for performing atomic writes. Usage::
 
@@ -179,7 +166,7 @@ class AtomicWriter(object):
                 with contextlib.suppress(Exception):
                     self.rollback(f)
 
-    def get_fileobject(self, suffix="", prefix=tempfile.gettempprefix(),
+    def get_fileobject(self, suffix='', prefix=tempfile.gettempprefix(),
                        _dir=None, **kwargs):
         """Return the temporary file to use."""
         if _dir is None:
@@ -196,8 +183,7 @@ class AtomicWriter(object):
 
     @classmethod
     def sync(cls, f):
-        """responsible for clearing as many file caches as possible before
-        commit"""
+        """responsible for clearing as many file caches as possible before commit"""
         f.flush()
         _proper_fsync(f.fileno())
 

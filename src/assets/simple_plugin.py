@@ -1,26 +1,47 @@
+from module.gocq_api import GocqApi
+
+
 class SimplePlugin:
-    def __init__(self):
+    def __init__(self, api: GocqApi):
         """实例初始化
-        不建议在此处做任何操作，因为这个函数会在插件加载时被调用
+
+        此处仅用作初始化插件信息，建议不要处理其他代码，以免发生异常情况
         """
-        print('Initializing SimplePlugin...')
+        self.api = api
+        self.name = '简单插件'
+        self.description = '这是一个插件模板'
+
+    def init(self):
+        """插件初始化，你可以在这里初始化一些依赖"""
+        ...
+        return self  # 务必返回self
 
     def on_enable(self):
-        print('plugin enabled')
-        # return False  # not enabled
-        return True  # enabled
+        """插件被启用"""
+        ...
+        return self  # 务必返回self
 
     def on_before_disable(self):
-        print('before disable')
+        """插件将被禁用，你还可以处理一些事情"""
+        ...
+        return self  # 务必返回self
 
     def on_disable(self):
-        print('plugin disabled')
+        """插件已被禁用，可以用于清理一些资源"""
+        ...
+        return self  # 务必返回self
 
     def on_connect(self):
-        print('server connected')
-
-    def on_message(self, message: dict):
-        print(f'message received {message}')
+        """已连接到KenkoGo服务器"""
+        ...
+        return self  # 务必返回self
 
     def on_disconnect(self):
-        print('server disconnected')
+        """已断开服务器连接"""
+        ...
+        return self  # 务必返回self
+
+    def on_message(self, message: dict):
+        """收到 go-cqhttp 消息"""
+        ...
+        return True  # 返回True表示消息将被传递给下一个插件，返回False表示消息被拦截

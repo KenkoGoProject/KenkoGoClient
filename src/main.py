@@ -9,10 +9,11 @@ from module.console import Console
 from module.exception_ex import AnyException
 from module.global_dict import Global
 from module.logger_ex import LoggerEx, LogLevel
+from module.singleton_type import SingletonType
 from module.user_config import UserConfig
 
 
-class Main:
+class Main(metaclass=SingletonType):
     """也许是不必要的面向对象？"""
     def signal_handler(self, sign, _) -> None:
         """信号处理器"""

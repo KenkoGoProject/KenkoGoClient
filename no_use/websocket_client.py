@@ -1,7 +1,4 @@
 import json
-from pathlib import Path, PurePath
-
-from inflection import camelize
 from websocket import WebSocketApp
 
 from module.global_dict import Global
@@ -60,7 +57,8 @@ class WebsocketClient(WebSocketApp, metaclass=SingletonType):
         ...
 
     def on_pong(self, _):
-        self.log.debug('Received pong')
+        # self.log.debug('Received pong')
+        ...
 
     def on_cont_message(self, _, message):
         self.log.debug(f'Received cont message: {message}')

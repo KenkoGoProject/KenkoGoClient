@@ -38,12 +38,6 @@ class YamlConfig(UserDict):
         with atomic_write(self.path, overwrite=True, encoding='utf-8') as f:
             self.yaml_controller.dump(self.data, f)
 
-    # def __getitem__(self, key):
-    #     try:
-    #         return super(YamlConfig, self).__getitem__(key)
-    #     except KeyError:
-    #         return None
-
     def __setitem__(self, key, value):
         super().__setitem__(key, value)
         if self.auto_save:
