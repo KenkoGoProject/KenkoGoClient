@@ -7,9 +7,11 @@ from inflection import camelize
 
 from assets.plugin_entity import Plugin
 from assets.simple_plugin import SimplePlugin
+from module.client_api import ClientApi
 from module.global_dict import Global
 from module.gocq_api import GocqApi
 from module.logger_ex import LoggerEx, LogLevel
+from module.server_api import ServerApi
 from module.singleton_type import SingletonType
 
 
@@ -48,21 +50,27 @@ class PluginHandler(metaclass=SingletonType):
                 self.log.exception(e)
                 continue
             try:
-                object_: SimplePlugin = class_(GocqApi(class_name))
+                object_: SimplePlugin = class_(GocqApi(class_name), ClientApi(class_name), ServerApi(class_name))
+                if not object_.name:
+                    raise ValueError('插件信息名称错误，请检查！ [red]name is error')
+                if not object_.description:
+                    raise ValueError('插件信息描述错误，请检查！ [red]description is error')
+                if not object_.version or object_.version == '#error#':
+                    raise ValueError('插件信息版本错误，请检查！ [red]version is error')
                 plugin = Plugin(object_)
                 plugin.name = object_.name
                 plugin.description = object_.description
                 plugin.version = object_.version
-                self.log.debug(f'[magenta][{plugin.class_name}][/magenta]: '
-                               f'{plugin.name}({plugin.version}) - {plugin.description}', extra={'markup': True})
-                object_.init()
+                self.log.debug(f'[magenta]{plugin.class_name}[/magenta] __init__', extra={'markup': True})
+                object_.on_initialize()
             except Exception as e:
                 self.log.error(f'Plugin [bold magenta]{class_name}[/bold magenta] '
                                f'initialization [red]failed[/red]: {e}',
                                extra={'markup': True})
                 continue
             self.plugin_list.append(plugin)
-            self.log.info(f'[bold magenta]{class_name} [green]loaded', extra={'markup': True})
+            self.log.info(f'[bold magenta]{class_name}[/bold magenta] [green]loaded[/green]: '
+                          f'{plugin.name}({plugin.version}) - {plugin.description}', extra={'markup': True})
         self._plugins_loaded = True
 
     def enable_all_plugin(self):

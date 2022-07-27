@@ -6,9 +6,6 @@ from module.singleton_type import SingletonType
 
 
 class Console(RichConsole, metaclass=SingletonType):
-    def __init__(self):
-        super().__init__()
-
     @staticmethod
     def ask(*args, **kwargs):
         return Confirm.ask(*args, **kwargs)

@@ -1,14 +1,20 @@
 import requests
 
 from module.global_dict import Global
+from module.logger_ex import LoggerEx, LogLevel
 
 
 class GocqApi:
 
     def __init__(self, name: str):
+        self.log = LoggerEx(f'{self.__class__.__name__} {name}')
+        if Global().debug_mode:
+            self.log.set_level(LogLevel.DEBUG)
+
         user_config = Global().user_config
         self.base_url = f'http://{user_config.host}:{user_config.port}/client/api'
         self.r: requests = requests.Session()  # type: ignore[valid-type]
+        self.r.headers.update({'Content-Type': 'application/json'})
 
     def send_private_msg(self, user_id: int, message: str, auto_escape: bool = False, from_group: int = None):
         j = {

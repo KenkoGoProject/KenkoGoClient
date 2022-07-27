@@ -12,24 +12,23 @@ class Global(metaclass=SingletonType):
 
     app_name = 'KenkoGoClient'  # 应用名称
     author_name = 'AkagiYui'  # 作者
-    version_num = 1  # 版本号
-    version_str = '0.1.0'  # 版本名称
+    version_num = 2  # 版本号
+    version_str = '0.1.1'  # 版本名称
     description = 'A simple client of KenkoGoServer'  # 描述
 
     exit_code = 0  # 退出码
     time_to_exit = False  # 是时候退出了
 
     debug_mode = False  # 调试模式
-    command: str = ''  # 命令
     user_config = None  # 用户配置  # type: UserConfig
     console: Console = None  # 控制台对象
 
     args_known = ()  # 命令行参数
     args_unknown = ()  # 未知命令
 
-    #######
-    # 路径 #
-    #######
+    ############
+    # 目录与路径 #
+    ############
 
     root_dir = Path('.')  # 根目录
     asset_dir = Path(root_dir, 'assets')  # 静态资源目录

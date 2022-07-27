@@ -1,5 +1,5 @@
 
-from typing import Optional
+from typing import Optional, Union
 
 import requests
 
@@ -8,8 +8,8 @@ from module.logger_ex import LoggerEx, LogLevel
 
 
 class ServerApi:
-    def __init__(self):
-        self.log = LoggerEx(self.__class__.__name__)
+    def __init__(self, name):
+        self.log = LoggerEx(f'{self.__class__.__name__} {name}')
         if Global().debug_mode:
             self.log.set_level(LogLevel.DEBUG)
 
@@ -19,6 +19,7 @@ class ServerApi:
         self.r.headers.update({'Content-Type': 'application/json'})
 
     def stop_instance(self) -> bool:
+        """停止实例，可能导致无法在 QQ 控制，请谨慎使用。"""
         self.log.debug('Stopping instance...')
         url = f'{self.base_url}/instance/stop'
         result = self.r.post(url).json()
@@ -29,6 +30,7 @@ class ServerApi:
         return False
 
     def start_instance(self) -> bool:
+        """启动实例"""
         self.log.debug('Starting instance...')
         url = f'{self.base_url}/instance/start'
         result = self.r.post(url).json()
@@ -39,6 +41,7 @@ class ServerApi:
         return False
 
     def get_qrcode(self) -> Optional[bytes]:
+        """获取登录二维码"""
         self.log.debug('Getting qrcode...')
         url = f'{self.base_url}/instance/qrcode'
         result = self.r.get(url)
@@ -49,7 +52,8 @@ class ServerApi:
         self.log.debug('Qrcode got.')
         return result
 
-    def get_status(self) -> Optional[dict]:
+    def get_status(self) -> Union[dict, str]:
+        """获取服务器状态"""
         url = f'{self.base_url}/info'
         result = self.r.get(url).json()
         if result['code'] == 200:

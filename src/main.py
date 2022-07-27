@@ -83,7 +83,6 @@ class Main(metaclass=SingletonType):
                 else:
                     self.log.error('Invalid Command')  # 输入的命令无效
             else:
-                Global().command = command
                 self.command_handler.add(command)
 
         # 退出程序

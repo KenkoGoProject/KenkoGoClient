@@ -1,4 +1,3 @@
-
 import logging
 import traceback
 from logging import Formatter
@@ -17,11 +16,12 @@ class LogLevel(int):
     NOTSET = logging.NOTSET  # 0
 
 
-# 修改 root logger 的基础配置
-# rich_handler = RichHandler(show_time=False, show_path=False, rich_tracebacks=True, tracebacks_show_locals=True)
-# fmt_string = '%(asctime)s.%(msecs)03d %(message)s'
-# rich_handler.setFormatter(Formatter(fmt=fmt_string, datefmt='%Y-%m-%d %H:%M:%S'))
-# logging.basicConfig(handlers=[rich_handler])
+def patch_root_logger():
+    """修改 root logger 的基础配置"""
+    rich_handler = RichHandler(show_time=False, show_path=False, rich_tracebacks=True, tracebacks_show_locals=True)
+    fmt_string = '%(asctime)s.%(msecs)03d %(message)s'
+    rich_handler.setFormatter(Formatter(fmt=fmt_string, datefmt='%Y-%m-%d %H:%M:%S'))
+    logging.basicConfig(handlers=[rich_handler])
 
 
 class LoggerEx:

@@ -29,6 +29,8 @@ vim config.yaml  # 修改配置文件
 
 当控制台提示`KenkoGo Started`时，可输入`/help`查看可用的指令。
 
+### 编写插件 [Plugin](docs/plugin.md)
+
 
 ## 更新日志 [Changelog](Changelog.md)
 
@@ -43,25 +45,18 @@ vim config.yaml  # 修改配置文件
 
 ## 开发相关 Development
 
-操作系统：[Windows 10 19044.1586](https://www.microsoft.com/zh-cn/windows)
-
-系统架构：amd64
+- 操作系统：[Windows 10 19044.1586](https://www.microsoft.com/zh-cn/windows)
+- 系统架构：amd64
 
 ### 使用技术 Technology Stack
 
-Python: [3.9.13](https://www.python.org/) [下载地址](https://www.python.org/downloads/release/python-3913/)
-
-构建工具: [Nuitka](https://nuitka.net/) [下载地址](https://nuitka.net/doc/download.html)
-
-数据库: [SQLite](https://www.sqlite.org/index.html)
-
-自动构建: [GitHub Actions](https://https://docs.github.com/cn/actions)
-
-依赖表生成工具: [pip-tools 6.8.0](https://github.com/jazzband/pip-tools/)
-
-导入排序工具: [isort 5.10.1](https://pycqa.github.io/isort/)
-
-代码格式化工具: [flake8 4.0.1](https://flake8.readthedocs.io/en/latest/) [mypy 0.971](https://mypy.readthedocs.io/en/latest/)
+- Python: [3.9.13](https://www.python.org/) [下载地址](https://www.python.org/downloads/release/python-3913/)
+- 构建工具: [Nuitka](https://nuitka.net/) [下载地址](https://nuitka.net/doc/download.html)
+- 数据库: [SQLite](https://www.sqlite.org/index.html)
+- 自动构建: [GitHub Actions](https://https://docs.github.com/cn/actions)
+- 依赖表生成工具: [pip-tools 6.8.0](https://github.com/jazzband/pip-tools/)
+- 导入排序工具: [isort 5.10.1](https://pycqa.github.io/isort/)
+- 代码格式化工具: [flake8 4.0.1](https://flake8.readthedocs.io/en/latest/) [mypy 0.971](https://mypy.readthedocs.io/en/latest/)
 
 ### 运行时Python包  Runtime Python Package
 
@@ -81,6 +76,9 @@ Python: [3.9.13](https://www.python.org/) [下载地址](https://www.python.org/
 - [ ] 集成 [pydis](https://github.com/Zombie123456/pydis)
 - [ ] 集成 [retrying](https://github.com/rholder/retrying)
 - [ ] 编写 Nuitka 脚本
+- [ ] 运行时插件加载卸载
+- [ ] 运行时插件启用禁用
+- [ ] API 鉴权
 
 ## 从代码开始 Start from Code
 
