@@ -46,7 +46,7 @@ class HelloWorld(SimplePlugin):
         print('server disconnected')
         return self  # 务必返回self
 
-    def on_message(self, message):
+    def on_message(self, message: dict) -> bool:
         """收到 go-cqhttp 消息
 
         遵循 go-cqhttp 版的 OneBot 消息格式

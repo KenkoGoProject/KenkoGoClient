@@ -30,13 +30,14 @@ class LoggerEx:
         self.show_name = show_name
         self.logger = logging.getLogger(self.name)
 
-        rich_handler = RichHandler(show_time=False, show_path=False, rich_tracebacks=True, tracebacks_show_locals=True)
-        fmt_string = '%(asctime)s.%(msecs)03d '
-        if show_name:
-            fmt_string += f'[{self.name}] '
-        fmt_string += '%(message)s'
-        rich_handler.setFormatter(Formatter(fmt=fmt_string, datefmt='%Y-%m-%d %H:%M:%S'))
-        self.logger.addHandler(rich_handler)
+        if not self.logger.hasHandlers():
+            rich_handler = RichHandler(show_time=False, show_path=False, rich_tracebacks=True, tracebacks_show_locals=True)
+            fmt_string = '%(asctime)s.%(msecs)03d '
+            if show_name:
+                fmt_string += f'[{self.name}] '
+            fmt_string += '%(message)s'
+            rich_handler.setFormatter(Formatter(fmt=fmt_string, datefmt='%Y-%m-%d %H:%M:%S'))
+            self.logger.addHandler(rich_handler)
         self.logger.setLevel(log_level)
 
     def set_level(self, level: int):
@@ -60,6 +61,9 @@ class LoggerEx:
     def critical(self, *args, **kwargs):
         self.logger.critical(*args, **kwargs)
 
+    def exception(self, *args, **kwargs):
+        self.logger.exception(*args, **kwargs)
+
 
 if __name__ == '__main__':
 
@@ -72,4 +76,10 @@ if __name__ == '__main__':
         log.error("Hello, World!")
         # log.trace("Hello, World!")
 
-    haha()
+    # haha()
+
+    log = LoggerEx('abcc')
+    log.info(233)
+
+    log = LoggerEx('abcc')
+    log.info(456)

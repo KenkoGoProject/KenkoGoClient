@@ -44,6 +44,9 @@ class PluginHandler(metaclass=SingletonType):
             except AttributeError:
                 self.log.error(f'Class [bold magenta]{class_name} [red]not found', extra={'markup': True})
                 continue
+            except Exception as e:
+                self.log.exception(e)
+                continue
             try:
                 object_: SimplePlugin = class_(GocqApi(class_name))
                 plugin = Plugin(object_)
@@ -67,7 +70,7 @@ class PluginHandler(metaclass=SingletonType):
             try:
                 plugin_.enable = plugin_.obj.on_enable() == plugin_.obj
             except Exception as e:
-                self.log.error(f'{plugin_.class_name} error: {e}')
+                self.log.exception(e)
                 continue
             if plugin_.enable:
                 self.log.info(f'[green]Enabled [bold magenta]{plugin_.class_name} ', extra={'markup': True})
@@ -84,7 +87,7 @@ class PluginHandler(metaclass=SingletonType):
                                      extra={'markup': True})
                     plugin_.enable = plugin_.obj.on_disable() != plugin_.obj
             except Exception as e:
-                self.log.error(f'{plugin_.class_name} error: {e}')
+                self.log.exception(e)
                 continue
             if plugin_.enable:
                 self.log.debug(f'[bold magenta]{plugin_.name} [red]disable failed', extra={'markup': True})
@@ -98,7 +101,7 @@ class PluginHandler(metaclass=SingletonType):
             try:
                 plugin_.obj.on_message(message)
             except Exception as e:
-                self.log.error(f'{plugin_.name} error: {e}')
+                self.log.exception(e)
 
     def broadcast_connected(self):
         for plugin_ in self.plugin_list:
@@ -107,7 +110,7 @@ class PluginHandler(metaclass=SingletonType):
             try:
                 plugin_.obj.on_connect()
             except Exception as e:
-                self.log.error(f'{plugin_.name} error: {e}')
+                self.log.exception(e)
 
     def broadcast_disconnected(self):
         for plugin_ in self.plugin_list:
@@ -116,7 +119,7 @@ class PluginHandler(metaclass=SingletonType):
             try:
                 plugin_.obj.on_disconnect()
             except Exception as e:
-                self.log.error(f'{plugin_.name} error: {e}')
+                self.log.exception(e)
 
     def broadcast_event(self, event: str, *args, **kwargs):
         if event == 'message':

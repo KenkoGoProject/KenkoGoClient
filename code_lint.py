@@ -3,13 +3,13 @@ import subprocess
 
 status = 0
 
-status += subprocess.call(['isort', 'src'])  # 导入排序
+status += subprocess.call(['isort', 'src/'])  # 导入排序
 
 
 status += subprocess.call(['flake8', 'src/',
                            '--max-line-length=127', '--ignore=W503',
                            '--statistics', '--count'])  # flake8代码规范
-status += subprocess.call(['mypy', 'src', '--show-error-codes',
+status += subprocess.call(['mypy', 'src/', '--show-error-codes',
                            '--follow-imports=skip', '--ignore-missing-imports',
                            '--exclude', 'src/module/atomicwrites',
                            # '--exclude', '/*_ex\.py$'

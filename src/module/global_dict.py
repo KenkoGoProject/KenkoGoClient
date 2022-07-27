@@ -33,19 +33,12 @@ class Global(metaclass=SingletonType):
 
     root_dir = Path('.')  # 根目录
     asset_dir = Path(root_dir, 'assets')  # 静态资源目录
-    download_dir = Path(asset_dir, 'downloads')  # 下载目录
+    download_dir = Path(root_dir, 'downloads')  # 下载目录
 
-    # def __setattr__(self, key, value):
-    #     self._members[key] = value
-    #
-    # def __getattr__(self, key):
-    #     try:
-    #         return self._members[key]
-    #     except KeyError:
-    #         return None
-    #
-    # def __delattr__(self, key):
-    #     del self._members[key]
+    def __init__(self):
+        # 创建目录
+        for dir_ in [self.asset_dir, self.download_dir]:
+            dir_.mkdir(parents=True, exist_ok=True)
 
     def __repr__(self):
         return self._members.__repr__()

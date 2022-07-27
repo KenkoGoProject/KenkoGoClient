@@ -2,6 +2,7 @@ import base64
 
 
 class CqCode:
+    """CQ码生成器"""
     @staticmethod
     def face(face_id: int):
         return f'[CQ:face,id={face_id}]'

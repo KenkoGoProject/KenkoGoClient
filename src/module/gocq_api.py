@@ -8,21 +8,21 @@ class GocqApi:
     def __init__(self, name: str):
         user_config = Global().user_config
         self.base_url = f'http://{user_config.host}:{user_config.port}/client/api'
-        self.r: requests = requests.Session()
+        self.r: requests = requests.Session()  # type: ignore[valid-type]
 
     def send_private_msg(self, user_id: int, message: str, auto_escape: bool = False, from_group: int = None):
         j = {
-                'user_id': user_id,
-                'message': message,
-                'auto_escape': auto_escape
+            'user_id': user_id,
+            'message': message,
+            'auto_escape': auto_escape
         }
         if from_group is not None:
             j['from_group'] = from_group
-        response = self.r.post(f'{self.base_url}/send_private_msg', json=j)
+        response = self.r.post(f'{self.base_url}/send_private_msg', json=j)  # type: ignore[attr-defined]
         return response.json()
 
     def send_group_msg(self, group_id: int, message: str, auto_escape: bool = False):
-        response = self.r.post(
+        response = self.r.post(    # type: ignore[attr-defined]
             f'{self.base_url}/send_group_msg',
             json={
                 'group_id': group_id,
@@ -40,14 +40,14 @@ class GocqApi:
             j['user_id'] = message['user_id']
         j['message'] = message['message']
         j['auto_escape'] = auto_escape
-        response = self.r.post(
+        response = self.r.post(    # type: ignore[attr-defined]
             f'{self.base_url}/send_msg',
             json=j
         )
         return response.json()
 
     def set_friend_add_request(self, flag: str, approve=True, remark: str = None):
-        response = self.r.post(
+        response = self.r.post(    # type: ignore[attr-defined]
             f'{self.base_url}/set_friend_add_request',
             json={
                 'flag': flag,

@@ -68,6 +68,11 @@ Python: [3.9.13](https://www.python.org/) [下载地址](https://www.python.org/
 - [rich 12.5.1](https://github.com/Textualize/rich/blob/master/README.cn.md) 控制台美化工具
 - [ruamel.yaml 0.17.21](https://yaml.readthedocs.io/en/latest/) Yaml解析工具
 - [requests 2.28.1](https://requests.readthedocs.io/en/latest/) HTTP客户端
+- [websockets-client 1.3.3](https://github.com/websocket-client/websocket-client) Websocket 客户端
+- [inflection 0.5.1](https://github.com/jpvanhal/inflection) 字符串格式化工具
+- [qrcode 7.3.1](https://github.com/lincolnloop/python-qrcode) 二维码生成工具
+- [pyzbar 0.1.9](https://pypi.org/project/pyzbar/) 二维码识别工具
+- [Pillow 9.2.0](https://python-pillow.org/) 图像处理工具
 
 ### 待办事项 Todo
 
@@ -76,7 +81,6 @@ Python: [3.9.13](https://www.python.org/) [下载地址](https://www.python.org/
 - [ ] 集成 [pydis](https://github.com/Zombie123456/pydis)
 - [ ] 集成 [retrying](https://github.com/rholder/retrying)
 - [ ] 编写 Nuitka 脚本
-- [websockets 10.3](https://websockets.readthedocs.io/en/stable/) Websocket 协议框架
 
 ## 从代码开始 Start from Code
 

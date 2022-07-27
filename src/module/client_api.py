@@ -1,3 +1,12 @@
+from module.global_dict import Global
+
+
 class ClientApi:
-    ...
-    # TODO: 日志/信息/重启ws
+    """Client API"""
+    @staticmethod
+    def get_info() -> dict:
+        """获取Client的信息"""
+        return {
+            'app_name': Global().app_name,
+            'version': Global().version_str,
+        }
