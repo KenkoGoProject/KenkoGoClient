@@ -1,3 +1,5 @@
+import traceback
+
 from module.global_dict import Global
 from module.logger_ex import LoggerEx, LogLevel
 
@@ -5,7 +7,8 @@ from module.logger_ex import LoggerEx, LogLevel
 class ClientApi:
     """Client API"""
 
-    def __init__(self, name):
+    def __init__(self, name=None):
+        self.name = name or traceback.extract_stack()[-2].name
         self.log = LoggerEx(f'{self.__class__.__name__} {name}')
         if Global().debug_mode:
             self.log.set_level(LogLevel.DEBUG)
@@ -16,4 +19,19 @@ class ClientApi:
         return {
             'app_name': Global().app_name,
             'version': Global().version_str,
+            'connected': Global().kenko_go.websocket_connected,
         }
+
+    def disconnect(self):
+        """断开连接"""
+        self.log.debug('Disconnecting...')
+        kenko_go = Global().kenko_go
+        kenko_go.stop_websocket()
+        self.log.debug('Disconnected.')
+
+    def connect(self):
+        """连接"""
+        self.log.debug('Connecting...')
+        kenko_go = Global().kenko_go
+        kenko_go.start_websocket()
+        self.log.debug('Connected.')

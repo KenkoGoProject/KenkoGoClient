@@ -5,7 +5,7 @@ from websocket import WebSocketApp
 
 from module.global_dict import Global
 from module.logger_ex import LoggerEx, LogLevel
-from module.plugin_handler import PluginHandler
+from module.plugin_manager import PluginManager
 from module.singleton_type import SingletonType
 from module.thread_ex import ThreadEx
 
@@ -17,14 +17,17 @@ class KenkoGo(metaclass=SingletonType):
         self.log = LoggerEx(self.__class__.__name__)
         if Global().debug_mode:
             self.log.set_level(LogLevel.DEBUG)
-        self.http_thread = None
 
         # 打印版本信息
         self.log.info(f'{Global().app_name} - {Global().description}')
         self.log.info(f'Version: {Global().version_str}')
         self.log.debug(f'Version Num: {Global().version_num}')
 
-        self.plugin_handler = PluginHandler()  # 初始化插件管理器
+        self.websocket_thread = None  # WebSocket 线程
+        self.auto_reconnect = False  # 自动重连
+        self.websocket_connected = False  # WebSocket 连接状态
+
+        self.plugin_handler = PluginManager()  # 初始化插件管理器
         self.plugin_handler.load_plugins()  # 加载插件
 
         # 初始化 WebSocket 服务
@@ -43,28 +46,39 @@ class KenkoGo(metaclass=SingletonType):
             on_cont_message=self.__on_websocket_cont_message,
             on_data=self.__on_websocket_data,
         )
-        self.websocket_connected = False
 
     def start(self):
         """启动插件与WebSocket连接"""
         self.plugin_handler.enable_all_plugin()  # 启用插件
-        self.__start_websocket_thread()  # 启动WebSocket连接
+        self.start_websocket()  # 启动WebSocket连接
         self.log.info(f'{Global().app_name} started.')
 
-    def __start_websocket_thread(self):
-        self.http_thread = ThreadEx(
+    def start_websocket(self):
+        """启动WebSocket连接"""
+        if isinstance(self.websocket_thread, ThreadEx) and self.websocket_thread.is_alive():
+            self.log.warning('WebSocket already started.')
+            return
+        self.websocket_thread = ThreadEx(
             target=self.websocket_app.run_forever,
             daemon=True,
         )
-        self.http_thread.start()
+        self.auto_reconnect = True
+        self.websocket_thread.start()
+
+    def stop_websocket(self):
+        """停止WebSocket连接"""
+        self.auto_reconnect = False
+        if isinstance(self.websocket_thread, ThreadEx) and self.websocket_thread.is_alive():
+            # TODO: 实现优雅的关闭
+            self.websocket_thread.kill()
+        else:
+            self.log.warning('WebSocket may not start.')
 
     def stop(self):
         """停止所有插件与WebSocket连接"""
         self.log.debug(f'{Global().app_name} stopping.')
         self.plugin_handler.disable_all_plugin()
-        if isinstance(self.http_thread, ThreadEx):
-            # TODO: 实现优雅的关闭
-            self.http_thread.kill()
+        self.stop_websocket()
         self.log.info(f'{Global().app_name} stopped, see you next time.')
 
     def __on_websocket_open(self, _):
@@ -97,8 +111,9 @@ class KenkoGo(metaclass=SingletonType):
         if self.websocket_connected:
             self.plugin_handler.broadcast_event('disconnected')
         self.websocket_connected = False
-        time.sleep(3)
-        self.__start_websocket_thread()
+        if self.auto_reconnect:
+            time.sleep(3)
+            self.start_websocket()
 
     def __on_websocket_ping(self, _, data: bytes):
         # self.log.debug(f'Received ping: {data}')

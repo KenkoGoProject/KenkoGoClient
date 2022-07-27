@@ -12,8 +12,8 @@ class SimplePlugin:
         self.api = api
         self.client = client
         self.server = server
-        self.name = '简单插件'
-        self.description = '这是一个插件模板'
+        self.name = ''
+        self.description = ''
         self.version = '#error#'
 
     def on_initialize(self):

@@ -15,7 +15,7 @@ from module.server_api import ServerApi
 from module.singleton_type import SingletonType
 
 
-class PluginHandler(metaclass=SingletonType):
+class PluginManager(metaclass=SingletonType):
     _plugins_loaded = False
 
     def __init__(self):
@@ -75,6 +75,8 @@ class PluginHandler(metaclass=SingletonType):
 
     def enable_all_plugin(self):
         for plugin_ in self.plugin_list:
+            if plugin_.enable:
+                continue
             try:
                 plugin_.enable = plugin_.obj.on_enable() == plugin_.obj
             except Exception as e:
@@ -93,21 +95,22 @@ class PluginHandler(metaclass=SingletonType):
                 if plugin_.obj.on_before_disable() != plugin_.obj:
                     self.log.warning(f'[bold magenta]{plugin_.name} [red]not ready to be disabled',
                                      extra={'markup': True})
-                    plugin_.enable = plugin_.obj.on_disable() != plugin_.obj
+                plugin_.enable = plugin_.obj.on_disable() != plugin_.obj
             except Exception as e:
                 self.log.exception(e)
                 continue
             if plugin_.enable:
-                self.log.debug(f'[bold magenta]{plugin_.name} [red]disable failed', extra={'markup': True})
+                self.log.error(f'[bold magenta]{plugin_.class_name} [red]disable failed', extra={'markup': True})
                 continue
-            self.log.info(f'[orange]Disabled [bold magenta]{plugin_.name}', extra={'markup': True})
+            self.log.info(f'[orange1]Disabled [bold magenta]{plugin_.class_name}', extra={'markup': True})
 
     def broadcast_message(self, message):
         for plugin_ in self.plugin_list:
             if not plugin_.enable:
                 continue
             try:
-                plugin_.obj.on_message(message)
+                if plugin_.obj.on_message(message) is not True:
+                    break
             except Exception as e:
                 self.log.exception(e)
 

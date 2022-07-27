@@ -68,6 +68,7 @@ class Main(metaclass=SingletonType):
             # 启动应用
             from kenko_go import KenkoGo
             app = KenkoGo()
+            Global().kenko_go = app
             app.start()
         except AnyException:
             Global().console.print_exception(show_locals=True)
