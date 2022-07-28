@@ -6,7 +6,8 @@ import threading
 class ThreadEx(threading.Thread):
     """增强线程类，支持结束线程"""
 
-    def kill(self):
+    def kill(self) -> None:
+        """强制结束线程"""
         exctype = SystemExit
         # raises the exception, performs cleanup if needed
         tid = ctypes.c_long(self.ident)

@@ -7,17 +7,7 @@ from module.singleton_type import SingletonType
 from module.utils import decode_qrcode, print_qrcode
 from rich.table import Table
 
-
-class CommandHandler(metaclass=SingletonType):
-    def __init__(self):
-        self.log = LoggerEx(self.__class__.__name__)
-        if Global().debug_mode:
-            self.log.set_level(LogLevel.DEBUG)
-
-    def add(self, command):
-        self.log.debug(f'Add command: {command}')
-        if command == '/help':
-            help_text = """支持的命令 Available commands:
+help_text = """支持的命令 Available commands:
 /help: 显示此帮助 Show this help message
 /exit: 退出KenkoGoClient Quit the application
 
@@ -36,6 +26,17 @@ class CommandHandler(metaclass=SingletonType):
 /enable: 启用所有插件 Enable all plugins
 /disable: 禁用所有插件 Disable all plugins
 """
+
+
+class CommandHandler(metaclass=SingletonType):
+    def __init__(self):
+        self.log = LoggerEx(self.__class__.__name__)
+        if Global().debug_mode:
+            self.log.set_level(LogLevel.DEBUG)
+
+    def add(self, command) -> None:
+        self.log.debug(f'Get command: {command}')
+        if command == '/help':
             Global().console.print(help_text)
         elif command == '/exit':
             Global().time_to_exit = True
@@ -44,21 +45,16 @@ class CommandHandler(metaclass=SingletonType):
         elif command == '/disconnect':
             ClientApi().disconnect()
         elif command == '/start':
-            ServerApi().start_instance()
+            self.start_instance()
         elif command == '/stop':
-            ServerApi().stop_instance()
+            self.stop_instance()
         elif command == '/qrcode':
-            code = ServerApi().get_qrcode()
-            if not code:
-                self.log.error('Failed to get qrcode')
-            code_url = decode_qrcode(code)
-            print_qrcode(code_url)
+            self.print_qrcode()
         elif command == '/info':
             info = ClientApi().get_info()
             Global().console.pretty_print(info)
         elif command == '/status':
-            status = ServerApi().get_status()
-            Global().console.pretty_print(status)
+            self.print_server_status()
         elif command == '/list':
             self.list_plugins()
         elif command == '/reload':
@@ -71,7 +67,46 @@ class CommandHandler(metaclass=SingletonType):
             self.log.error('Invalid Command')
 
     @staticmethod
-    def list_plugins():
+    def start_instance() -> None:
+        """启动go-cqhttp"""
+        user_config = Global().user_config
+        host = user_config.host
+        port = user_config.port
+        api = ServerApi(f'{host}:{port}')
+        api.start_instance()
+
+    @staticmethod
+    def stop_instance() -> None:
+        """停止go-cqhttp"""
+        user_config = Global().user_config
+        host = user_config.host
+        port = user_config.port
+        api = ServerApi(f'{host}:{port}')
+        api.stop_instance()
+
+    def print_qrcode(self) -> None:
+        user_config = Global().user_config
+        host = user_config.host
+        port = user_config.port
+        api = ServerApi(f'{host}:{port}')
+        code = api.get_qrcode()
+        if not code:
+            self.log.error('Failed to get qrcode')
+        code_url = decode_qrcode(code)
+        print_qrcode(code_url)
+
+    @staticmethod
+    def print_server_status() -> None:
+        user_config = Global().user_config
+        host = user_config.host
+        port = user_config.port
+        api = ServerApi(f'{host}:{port}')
+        status = api.get_status()
+        Global().console.pretty_print(status)
+
+    @staticmethod
+    def list_plugins() -> None:
+        """在控制台打印插件列表"""
         table = Table(title='插件 Plugins')
         table.add_column('名称 Name', style='cyan', no_wrap=True)
         table.add_column('版本 Version', style='deep_sky_blue1')

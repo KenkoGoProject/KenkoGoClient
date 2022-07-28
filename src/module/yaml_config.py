@@ -39,6 +39,8 @@ class YamlConfig(UserDict):
             self.yaml_controller.dump(self.data, f)
 
     def __setitem__(self, key, value):
+        if super().__getitem__(key) == value:
+            return
         super().__setitem__(key, value)
         if self.auto_save:
             self.save()

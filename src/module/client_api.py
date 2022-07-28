@@ -20,16 +20,17 @@ class ClientApi:
             'app_name': Global().app_name,
             'version': Global().version_str,
             'connected': Global().kenko_go.websocket_connected,
+            'websocket_msg_count': Global().websocket_message_count,
         }
 
-    def disconnect(self):
+    def disconnect(self) -> None:
         """断开连接"""
         self.log.debug('Disconnecting...')
         kenko_go = Global().kenko_go
         kenko_go.stop_websocket()
         self.log.debug('Disconnected.')
 
-    def connect(self):
+    def connect(self) -> None:
         """连接"""
         self.log.debug('Connecting...')
         kenko_go = Global().kenko_go

@@ -7,7 +7,6 @@ from rich.traceback import install as install_rich_traceback
 
 from module.command_handler import CommandHandler
 from module.console import Console
-from module.exception_ex import AnyException
 from module.global_dict import Global
 from module.logger_ex import LoggerEx, LogLevel
 from module.singleton_type import SingletonType
@@ -16,11 +15,12 @@ from module.user_config import UserConfig
 
 class Main(metaclass=SingletonType):
     """也许是不必要的面向对象？"""
+
     def signal_handler(self, sign, _) -> None:
         """信号处理器"""
         if sign in (signal.SIGINT, signal.SIGTERM):
             self.log.debug(f'Received signal {sign}, Application exits.')
-            Global().time_to_exit = True
+            Global().time_to_exit = True  # 收到退出信号，标记退出
 
     def __init__(self):
         Global().console = Console()  # 初始化控制台对象
@@ -34,29 +34,30 @@ class Main(metaclass=SingletonType):
         )
         parser.add_argument('-h', '--help', action='store_true', help='Show this help message and exit')
         parser.add_argument('-d', '--debug', action='store_true', help='Debug mode')
+        parser.add_argument('-t', '--test', action='store_true', help='Test mode')
         parser.add_argument('-c', '--config', help='Config file path', default='config.yaml')
-        args_known, args_unknown = parser.parse_known_args()
+        args_known, Global().args_unknown = parser.parse_known_args()
+        Global().args_known = args_known
 
         # 如果用户输入了 -h 或 --help，则显示帮助信息并退出
         if args_known.help:
             parser.print_help()
             sys.exit(0)
 
-        Global().debug_mode = args_known.debug  # 开启调试模式
+        Global().debug_mode = args_known.debug or Global().debug_mode  # 开启调试模式
+        Global().test_mode = args_known.test or Global().test_mode  # 开启测试模式
 
         # 创建日志打印器
         self.log: LoggerEx = LoggerEx(self.__class__.__name__)
         self.log.set_level(LogLevel.DEBUG if Global().debug_mode else LogLevel.INFO)
 
-        # 加载用户配置
-        self.log.debug('Loading Config...')
-        Global().user_config = UserConfig(args_known.config)
+        Global().user_config = UserConfig(args_known.config)  # 加载用户配置
 
         # 设置信号响应
         signal.signal(signal.SIGINT, self.signal_handler)
         signal.signal(signal.SIGTERM, self.signal_handler)
 
-        self.command_handler = CommandHandler()  # 创建命令处理器
+        Global().command_handler = CommandHandler()  # 创建命令处理器
         self.run_forever()  # 启动程序
 
     def run_forever(self) -> None:
@@ -70,8 +71,8 @@ class Main(metaclass=SingletonType):
             app = KenkoGo()
             Global().kenko_go = app
             app.start()
-        except AnyException:
-            Global().console.print_exception(show_locals=True)
+        except Exception as e:
+            self.log.exception(e)
             Global().time_to_exit = True
             self.log.critical('Critical Error, Application exits abnormally.')  # 发生致命错误，应用异常退出
 
@@ -84,7 +85,7 @@ class Main(metaclass=SingletonType):
                 else:
                     self.log.error('Invalid Command')  # 输入的命令无效
             else:
-                self.command_handler.add(command)
+                Global().command_handler.add(command)
 
         # 退出程序
         from kenko_go import KenkoGo
@@ -95,13 +96,14 @@ class Main(metaclass=SingletonType):
 
 
 if __name__ == '__main__':
+    # Windows下修改控制台窗口标题
     with contextlib.suppress(Exception):
-        # TODO: 补上linux
         import ctypes
         ctypes.windll.kernel32.SetConsoleTitleW(f'{Global().app_name} {Global().version_str}')
 
     # 让PyCharm调试输出的信息换行
     if sys.gettrace() is not None:
         print('Debug Mode')
+        Global().debug_mode = True
 
     sys.exit(Main())  # 启动程序
