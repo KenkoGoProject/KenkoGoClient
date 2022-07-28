@@ -137,6 +137,10 @@ class PluginManager(metaclass=SingletonType):
                 continue
             self.disable_plugin(plugin_)
 
+    def reload_all_plugin(self) -> None:
+        """重新加载所有插件"""
+        ...  # TODO: 实现重新加载插件
+
     def disable_plugin(self, plugin: Plugin) -> None:
         """禁用插件
 

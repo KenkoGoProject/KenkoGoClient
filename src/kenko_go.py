@@ -60,7 +60,11 @@ class KenkoGo(metaclass=SingletonType):
         """主动停止WebSocket连接"""
         self.auto_reconnect = False
         if isinstance(self.websocket_thread, ThreadEx) and self.websocket_thread.is_alive():
-            self.websocket_thread.kill()  # TODO: 实现优雅的关闭
+            self.websocket_app.close()
+            time.sleep(1)
+            if self.websocket_thread.is_alive():
+                self.log.warning('WebSocket close failed. Try to stop it forcibly.')
+                self.websocket_thread.kill()
         else:
             self.log.warning('WebSocket may not start.')
 
@@ -100,7 +104,7 @@ class KenkoGo(metaclass=SingletonType):
 
     def __on_websocket_error(self, _, error) -> None:
         """WebSocket连接发送错误"""
-        self.log.error(error)
+        self.log.error(f'WebSocket Error: {error}')
 
     def __on_websocket_close(self, _, code, msg) -> None:
         """WebSocket连接关闭"""

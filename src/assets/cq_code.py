@@ -58,6 +58,7 @@ class CqCode:
         :param threads: 下载网络图片并发线程数
         :return: CQ 码
         """
+        # TODO: 先发送文件至服务器
         try:
             with open(file_path, 'rb') as f:
                 return CqCode.image(f.read(), image_type, use_cache, show_id, threads)

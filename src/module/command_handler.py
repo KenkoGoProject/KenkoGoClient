@@ -1,3 +1,5 @@
+from rich.table import Table
+
 from module.client_api import ClientApi
 from module.global_dict import Global
 from module.logger_ex import LoggerEx, LogLevel
@@ -5,9 +7,8 @@ from module.plugin_manager import PluginManager
 from module.server_api import ServerApi
 from module.singleton_type import SingletonType
 from module.utils import decode_qrcode, print_qrcode
-from rich.table import Table
 
-help_text = """支持的命令 Available commands:
+HELP_TEXT = """支持的命令 Available commands:
 /help: 显示此帮助 Show this help message
 /exit: 退出KenkoGoClient Quit the application
 
@@ -22,7 +23,7 @@ help_text = """支持的命令 Available commands:
 /qrcode: 显示登录二维码 Show qrcode of go-cqhttp
 
 /list：列出插件信息 List plugins
-/reload: 重载插件(未完成) Reload plugins(WIP)
+/reload: [reset]重载插件(未完成) Reload plugins(WIP)[/reset]
 /enable: 启用所有插件 Enable all plugins
 /disable: 禁用所有插件 Disable all plugins
 """
@@ -36,29 +37,29 @@ class CommandHandler(metaclass=SingletonType):
 
     def add(self, command) -> None:
         self.log.debug(f'Get command: {command}')
-        if command == '/help':
-            Global().console.print(help_text)
+        if command in ['/help', '/h']:
+            Global().console.print(HELP_TEXT)
         elif command == '/exit':
             Global().time_to_exit = True
         elif command == '/connect':
-            ClientApi().connect()
+            ClientApi(self.__class__.__name__).connect()
         elif command == '/disconnect':
-            ClientApi().disconnect()
+            ClientApi(self.__class__.__name__).disconnect()
         elif command == '/start':
             self.start_instance()
         elif command == '/stop':
             self.stop_instance()
-        elif command == '/qrcode':
+        elif command in ['/qrcode', '/qr']:
             self.print_qrcode()
         elif command == '/info':
-            info = ClientApi().get_info()
-            Global().console.pretty_print(info)
+            info = ClientApi(self.__class__.__name__).get_info()
+            Global().console.print_object(info)
         elif command == '/status':
             self.print_server_status()
-        elif command == '/list':
+        elif command in ['/list', '/ls', 'ls']:
             self.list_plugins()
         elif command == '/reload':
-            self.log.info('Work in progress...')  # TODO: RELOAD PLUGINS
+            PluginManager().reload_all_plugin()
         elif command == '/enable':
             PluginManager().enable_all_plugin()
         elif command == '/disable':
@@ -66,55 +67,53 @@ class CommandHandler(metaclass=SingletonType):
         else:
             self.log.error('Invalid Command')
 
-    @staticmethod
-    def start_instance() -> None:
+    def start_instance(self) -> None:
         """启动go-cqhttp"""
         user_config = Global().user_config
         host = user_config.host
         port = user_config.port
-        api = ServerApi(f'{host}:{port}')
+        api = ServerApi(f'{host}:{port}', self.__class__.__name__)
         api.start_instance()
 
-    @staticmethod
-    def stop_instance() -> None:
+    def stop_instance(self) -> None:
         """停止go-cqhttp"""
         user_config = Global().user_config
         host = user_config.host
         port = user_config.port
-        api = ServerApi(f'{host}:{port}')
+        api = ServerApi(f'{host}:{port}', self.__class__.__name__)
         api.stop_instance()
 
     def print_qrcode(self) -> None:
         user_config = Global().user_config
         host = user_config.host
         port = user_config.port
-        api = ServerApi(f'{host}:{port}')
+        api = ServerApi(f'{host}:{port}', self.__class__.__name__)
         code = api.get_qrcode()
         if not code:
             self.log.error('Failed to get qrcode')
         code_url = decode_qrcode(code)
         print_qrcode(code_url)
 
-    @staticmethod
-    def print_server_status() -> None:
+    def print_server_status(self) -> None:
         user_config = Global().user_config
         host = user_config.host
         port = user_config.port
-        api = ServerApi(f'{host}:{port}')
+        api = ServerApi(f'{host}:{port}', self.__class__.__name__)
         status = api.get_status()
-        Global().console.pretty_print(status)
+        Global().console.print_object(status)
 
     @staticmethod
     def list_plugins() -> None:
         """在控制台打印插件列表"""
         table = Table(title='插件 Plugins')
-        table.add_column('名称 Name', style='cyan', no_wrap=True)
+        table.add_column('序号 Number', justify='right')
+        table.add_column('名称 Name', style='cyan')
         table.add_column('版本 Version', style='deep_sky_blue1')
         table.add_column('状态 Status', style='magenta')
 
         plugins = PluginManager().plugin_list
-        for plugin in plugins:
+        for num, plugin in enumerate(plugins):
             enable_str = '[green]已启用 Enabled' if plugin.enable else '[red]已禁用 Disabled'
-            table.add_row(plugin.class_name, plugin.version, enable_str)
+            table.add_row(str(num + 1), plugin.class_name, plugin.version, enable_str)
 
         Global().console.print(table)

@@ -5,6 +5,9 @@ src/config.yaml
 src/assets/downloads
 src/assets/gocq
 src/gocq
+*.jpg
+*.png
+*.mp3
 
 ### Python template
 # Byte-compiled / optimized / DLL files

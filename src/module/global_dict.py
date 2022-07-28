@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from module.singleton_type import SingletonType
 
 
