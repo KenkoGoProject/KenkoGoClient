@@ -16,7 +16,7 @@ class LogLevel(int):
     NOTSET = logging.NOTSET  # 0
 
 
-def patch_root_logger():
+def patch_root_logger() -> None:
     """修改 root logger 的基础配置"""
     rich_handler = RichHandler(show_time=False, show_path=False, rich_tracebacks=True, tracebacks_show_locals=True)
     fmt_string = '%(asctime)s.%(msecs)03d %(message)s'

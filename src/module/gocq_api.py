@@ -40,7 +40,7 @@ class GocqApi:
         }
         if from_group is not None:
             j['from_group'] = from_group
-        self.log.info(f'[send_private_msg] {user_id}: {message}')
+        self.log.info(f'[send_private_msg] {user_id}: {message[:100]}')
         response = self.r.post(f'{self.base_url}/send_private_msg', json=j)  # type: ignore[attr-defined]
         return response.json()
 
@@ -57,7 +57,7 @@ class GocqApi:
             'message': message,
             'auto_escape': auto_escape
         }
-        self.log.info(f'[send_group_msg] {group_id}: {message}')
+        self.log.info(f'[send_group_msg] {group_id}: {message[:100]}')
         response = self.r.post(f'{self.base_url}/send_group_msg', json=d)  # type: ignore[attr-defined]
         return response.json()
 
@@ -79,9 +79,9 @@ class GocqApi:
         d['message'] = message['message']
         d['auto_escape'] = auto_escape
         if 'group_id' in message:
-            self.log.info(f'[send_msg] Group({message["group_id"]}): {message["message"]}')
+            self.log.info(f'[send_msg] Group({message["group_id"]}): {message["message"][:100]}')
         elif 'user_id' in message:
-            self.log.info(f'[send_msg] User({message["user_id"]}): {message["message"]}')
+            self.log.info(f'[send_msg] User({message["user_id"]}): {message["message"][:100]}')
         response = self.r.post(f'{self.base_url}/send_msg', json=d)  # type: ignore[attr-defined]
         return response.json()
 

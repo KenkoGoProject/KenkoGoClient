@@ -24,7 +24,7 @@ class KenkoGo(metaclass=SingletonType):
         self.log.debug(f'Version Num: {Global().version_num}')
 
         self.websocket_thread = None  # WebSocket 线程
-        self.auto_reconnect = False  # 自动重连
+        self.auto_reconnect = True  # 自动重连
         self.websocket_connected = False  # WebSocket 连接状态
 
         Global().plugin_manager = PluginManager()  # 初始化插件管理器
@@ -48,9 +48,16 @@ class KenkoGo(metaclass=SingletonType):
         self.start_websocket()  # 启动WebSocket连接
         self.log.info(f'{Global().app_name} started.')
 
+    def stop(self) -> None:
+        """停止KenkoGo"""
+        self.log.debug(f'{Global().app_name} stopping.')
+        Global().plugin_manager.disable_all_plugin()  # 禁用插件
+        self.stop_websocket()  # 停止WebSocket连接
+        self.log.info(f'{Global().app_name} stopped, see you next time.')
+
     def start_websocket(self) -> None:
         """启动WebSocket连接"""
-        if isinstance(self.websocket_thread, ThreadEx) and self.websocket_thread.is_alive():
+        if self.websocket_app.keep_running:
             self.log.warning('WebSocket already started.')
             return
         self.websocket_thread = ThreadEx(target=self.websocket_app.run_forever, daemon=True)  # 一个线程只能运行一次
@@ -59,21 +66,15 @@ class KenkoGo(metaclass=SingletonType):
     def stop_websocket(self) -> None:
         """主动停止WebSocket连接"""
         self.auto_reconnect = False
-        if isinstance(self.websocket_thread, ThreadEx) and self.websocket_thread.is_alive():
+        if self.websocket_app.keep_running:
             self.websocket_app.close()
-            time.sleep(1)
-            if self.websocket_thread.is_alive():
+            if self.websocket_app.keep_running:
                 self.log.warning('WebSocket close failed. Try to stop it forcibly.')
                 self.websocket_thread.kill()
+            else:
+                self.log.debug('WebSocket close successfully.')
         else:
             self.log.warning('WebSocket may not start.')
-
-    def stop(self) -> None:
-        """停止KenkoGo"""
-        self.log.debug(f'{Global().app_name} stopping.')
-        Global().plugin_manager.disable_all_plugin()  # 禁用插件
-        self.stop_websocket()  # 停止WebSocket连接
-        self.log.info(f'{Global().app_name} stopped, see you next time.')
 
     def __on_websocket_open(self, _) -> None:
         """WebSocket连接已启动"""
@@ -103,15 +104,18 @@ class KenkoGo(metaclass=SingletonType):
             Global().plugin_manager.polling_event('message', message)
 
     def __on_websocket_error(self, _, error) -> None:
-        """WebSocket连接发送错误"""
+        """WebSocket连接发生错误"""
         self.log.error(f'WebSocket Error: {error}')
 
     def __on_websocket_close(self, _, code, msg) -> None:
         """WebSocket连接关闭"""
-        self.websocket_connected = False
+        self.websocket_app.close()
         self.log.debug(f'Disconnected from server: {code}, {msg}')
-        if self.websocket_connected:
+        if self.websocket_connected:  # 如果之前已经连接上了，就告诉插件
             Global().plugin_manager.polling_event('disconnected')
+        self.websocket_connected = False
+        if self.websocket_app.keep_running:
+            self.log.warning('WebSocket close failed. Try to stop it forcibly.')
         if self.auto_reconnect:
             time.sleep(3)  # 等待3秒重连
             self.start_websocket()
