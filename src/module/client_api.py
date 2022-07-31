@@ -36,3 +36,11 @@ class ClientApi:
         kenko_go = Global().kenko_go
         kenko_go.start_websocket()
         self.log.debug('Connected.')
+
+    def get_plugins(self) -> list:
+        """获取插件列表"""
+        self.log.debug('Getting plugins...')
+        plugin_manager = Global().plugin_manager
+        plugins = plugin_manager.plugin_list
+        self.log.debug('Got plugins.')
+        return plugins

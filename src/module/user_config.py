@@ -20,6 +20,7 @@ class UserConfig(metaclass=SingletonType):
     def load(self) -> None:
         self.log.debug(f'Loading config file: {self.file_path}')
         self.data = YamlConfig(self.file_path)
+        need_save = len(self.data) == 0
 
         # 读取配置
         self.port = int(self.data.get('port', self.port))
@@ -30,9 +31,10 @@ class UserConfig(metaclass=SingletonType):
         self.data.setdefault('host', self.host)
 
         self.log.debug(f'Config loaded: {dict(self.data)}')
+        if need_save:
+            self.save()
 
     def save(self) -> None:
         self.log.debug(f'Saving config file: {self.file_path}')
-        # TODO: 写出时保留注释
-        self.data.save()
+        self.data.save()  # TODO: 写出时保留注释
         self.log.debug(f'Config saved: {dict(self.data)}')

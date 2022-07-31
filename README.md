@@ -15,12 +15,31 @@ A Client of [KenkoGoServer](https://github.com/AkagiYui/KenkoGoServer)
 
 ## 快速开始 Quick Start
 
-1. 在 [release](https://github.com/AkagiYui/KenkoGoClient/releases) 下载最新版本并解压
+请确保你的机器有 **Python 3.9.13** 的环境，其他版本未经测试。
+
+1. 部署运行环境
 
 ```shell
-chmod +x ./kenkogo  # 赋予执行权限
-vim config.yaml  # 修改配置文件
-./kenkogo --debug
+git clone https://github.com/AkagiYui/KenkoGoClient
+cd ./KenkoGoClient
+python -m venv venv
+./venv/Scripts/activate
+python -m pip install -r ./requirements.txt
+cd ./src
+```
+
+2. 修改配置文件
+
+```shell
+cp config.yaml.bak config.yaml
+```
+
+其中，`host`为运行 KenkoGoServer 的计算机地址，`port`为端口号。
+
+3. 启动脚本
+
+```shell
+python ./main.py --debug
 ```
 
 > 命令行参数说明
@@ -51,12 +70,12 @@ vim config.yaml  # 修改配置文件
 ### 使用技术 Technology Stack
 
 - Python: [3.9.13](https://www.python.org/) [下载地址](https://www.python.org/downloads/release/python-3913/)
-- 构建工具: [Nuitka](https://nuitka.net/) [下载地址](https://nuitka.net/doc/download.html)
-- 数据库: [SQLite](https://www.sqlite.org/index.html)
-- 自动构建: [GitHub Actions](https://https://docs.github.com/cn/actions)
 - 依赖表生成工具: [pip-tools 6.8.0](https://github.com/jazzband/pip-tools/)
 - 导入排序工具: [isort 5.10.1](https://pycqa.github.io/isort/)
 - 代码格式化工具: [flake8 4.0.1](https://flake8.readthedocs.io/en/latest/) [mypy 0.971](https://mypy.readthedocs.io/en/latest/)
+- ~~构建工具: [Nuitka](https://nuitka.net/) [下载地址](https://nuitka.net/doc/download.html)~~
+- ~~数据库: [SQLite](https://www.sqlite.org/index.html)~~
+- ~~自动构建: [GitHub Actions](https://https://docs.github.com/cn/actions)~~
 
 ### 运行时Python包  Runtime Python Package
 
@@ -83,33 +102,6 @@ vim config.yaml  # 修改配置文件
 - [ ] 插件顺序调整
 
 ## 从代码开始 Start from Code
-
-### 运行 Start
-
-请确保你的机器有 **Python 3.9.13** 的环境，其他版本未经测试。
-
-1. 部署运行环境
-
-```shell
-git clone https://github.com/AkagiYui/KenkoGoClient
-cd ./KenkoGoClient
-python -m venv venv
-./venv/Scripts/activate
-python -m pip install -r ./requirements.txt
-```
-
-2. 修改配置文件
-
-```shell
-cd ./src
-cp config.yaml.bak config.yaml
-```
-
-3. 启动脚本
-
-```shell
-python ./main.py --debug
-```
 
 ### 代码检查 Code Lint
 
