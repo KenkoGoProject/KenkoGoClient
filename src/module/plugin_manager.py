@@ -114,22 +114,6 @@ class PluginManager(metaclass=SingletonType):
                 continue
             self.enable_plugin(plugin_)
 
-    def enable_plugin(self, plugin: Plugin) -> None:
-        """启用插件
-
-        :param plugin: 插件
-        :return: None
-        """
-        try:
-            plugin.enable = plugin.obj.on_enable() == plugin.obj
-        except Exception as e:
-            self.log.exception(e)
-            plugin.enable = False
-        if plugin.enable:
-            self.log.info(f'[green]Enabled [bold magenta]{plugin.class_name} ', extra={'markup': True})
-        else:
-            self.log.error(f'[bold magenta]{plugin.class_name} [red]enable failed', extra={'markup': True})
-
     def disable_all_plugin(self) -> None:
         """禁用所有插件"""
         for plugin_ in self.plugin_list:
@@ -141,11 +125,42 @@ class PluginManager(metaclass=SingletonType):
         """重新加载所有插件"""
         ...  # TODO: 实现重新加载插件
 
-    def disable_plugin(self, plugin: Plugin) -> None:
-        """禁用插件
+    def reload_plugin(self, plugin: Plugin) -> None:
+        """重新加载插件
 
         :param plugin: 插件
         :return: None
+        """
+        ...
+
+    def get_loaded_plugin(self, name: str):
+        for plugin_ in self.plugin_list:
+            if plugin_.name == name or plugin_.class_name == name:
+                return plugin_
+        return None
+
+    def enable_plugin(self, plugin: Plugin) -> bool:
+        """启用插件
+
+        :param plugin: 插件
+        :return: 是否启用成功
+        """
+        try:
+            plugin.enable = plugin.obj.on_enable() == plugin.obj
+        except Exception as e:
+            self.log.exception(e)
+            plugin.enable = False
+        if plugin.enable:
+            self.log.info(f'[green]Enabled [bold magenta]{plugin.class_name} ', extra={'markup': True})
+        else:
+            self.log.error(f'[bold magenta]{plugin.class_name} [red]enable failed', extra={'markup': True})
+        return plugin.enable
+
+    def disable_plugin(self, plugin: Plugin) -> bool:
+        """禁用插件
+
+        :param plugin: 插件
+        :return: 是否禁用成功
         """
         try:
             if plugin.obj.on_before_disable() != plugin.obj:
@@ -160,6 +175,7 @@ class PluginManager(metaclass=SingletonType):
             self.log.error(f'[bold magenta]{plugin.class_name} [red]disable failed', extra={'markup': True})
         else:
             self.log.info(f'[orange1]Disabled [bold magenta]{plugin.class_name}', extra={'markup': True})
+        return not plugin.enable
 
     def polling_message(self, message: dict) -> None:
         """插件调用 on_message

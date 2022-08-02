@@ -18,9 +18,14 @@ class Coolq(SimplePlugin):
     def on_message(self, message: dict):
         if message['post_type'] == 'message':
             if message['message_type'] == 'private':
-                return self.on_private_message(message['sub_type'], message['time'], message['user_id'], message['raw_message'], message['font'])
+                return self.on_private_message(
+                    message['sub_type'], message['time'], message['user_id'], message['raw_message'], message['font']
+                )
             elif message['message_type'] == 'group':
-                return self.on_group_message(message['sub_type'], message['time'], message['group_id'], message['user_id'], message['anonymous'], message['raw_message'], message['font'])
+                return self.on_group_message(
+                    message['sub_type'], message['time'], message['group_id'], message['user_id'],
+                    message['anonymous'], message['raw_message'], message['font']
+                )
         return True
 
     def on_private_message(self, sub_type, send_time, from_qq, msg, font) -> bool:

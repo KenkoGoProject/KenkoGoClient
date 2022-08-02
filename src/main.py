@@ -21,6 +21,7 @@ class Main(metaclass=SingletonType):
         if sign in (signal.SIGINT, signal.SIGTERM):
             self.log.debug(f'Received signal {sign}, Application exits.')
             Global().time_to_exit = True  # 收到退出信号，标记退出
+            raise KeyboardInterrupt
 
     def __init__(self):
         Global().console = Console()  # 初始化控制台对象
@@ -79,13 +80,15 @@ class Main(metaclass=SingletonType):
         while not Global().time_to_exit:
             try:
                 command = Global().console.input('> ')  # 获取用户输入
+                command = command.strip()
             except (UnicodeDecodeError, EOFError, KeyboardInterrupt):
                 if Global().time_to_exit:
                     break  # 退出
                 else:
                     self.log.error('Invalid Command')  # 输入的命令无效
             else:
-                Global().command_handler.add(command)
+                if command:
+                    Global().command_handler.add(command)
 
         # 退出程序
         from kenko_go import KenkoGo

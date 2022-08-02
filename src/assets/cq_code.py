@@ -97,7 +97,7 @@ class CqCode:
     @staticmethod
     def record_local(file_path: str, use_cache: bool = True) -> str:
         """语音消息
-        [CQ:record,file=http://baidu.com/1.mp3]
+        [CQ:record,file=file:///1.mp3]
         使用本地文件
 
         :param file_path: 本地文件路径

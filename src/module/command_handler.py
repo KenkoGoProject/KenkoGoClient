@@ -24,8 +24,8 @@ HELP_TEXT = """支持的命令 Available commands:
 
 /list：列出插件信息 List plugins
 /reload: [reset]重载插件(未完成) Reload plugins(WIP)[/reset]
-/enable: 启用所有插件 Enable all plugins
-/disable: 禁用所有插件 Disable all plugins
+/enable <name>: 启用插件 Enable plugin
+/disable <name>: 禁用插件 Disable plugin
 """
 
 
@@ -35,9 +35,9 @@ class CommandHandler(metaclass=SingletonType):
         if Global().debug_mode:
             self.log.set_level(LogLevel.DEBUG)
 
-    def add(self, command) -> None:
+    def add(self, command: str) -> None:
         self.log.debug(f'Get command: {command}')
-        if command in ['/help', '/h']:
+        if command in {'/help', '/h'}:
             Global().console.print(HELP_TEXT)
         elif command == '/exit':
             Global().time_to_exit = True
@@ -49,23 +49,37 @@ class CommandHandler(metaclass=SingletonType):
             self.start_instance()
         elif command == '/stop':
             self.stop_instance()
-        elif command in ['/qrcode', '/qr']:
+        elif command in {'/qrcode', '/qr'}:
             self.print_qrcode()
         elif command == '/info':
             info = ClientApi(self.__class__.__name__).get_info()
             Global().console.print_object(info)
         elif command == '/status':
             self.print_server_status()
-        elif command in ['/list', '/ls', 'ls']:
+        elif command in {'/list', '/ls', 'ls'}:
             self.list_plugins()
         elif command == '/reload':
             PluginManager().reload_all_plugin()
-        elif command == '/enable':
-            PluginManager().enable_all_plugin()
-        elif command == '/disable':
-            PluginManager().disable_all_plugin()
+        elif command.startswith('/enable'):
+            command = command.removeprefix('/enable').strip()
+            self.enable_plugin(command)
+        elif command.startswith('/disable'):
+            command = command.removeprefix('/disable').strip()
+            self.disable_plugin(command)
         else:
             self.log.error('Invalid Command')
+
+    def enable_plugin(self, name) -> None:
+        if not (plugin := PluginManager().get_loaded_plugin(name)):
+            self.log.error(f'Plugin {name} not found')
+            return
+        PluginManager().enable_plugin(plugin)
+
+    def disable_plugin(self, name) -> None:
+        if not (plugin := PluginManager().get_loaded_plugin(name)):
+            self.log.error(f'Plugin {name} not found')
+            return
+        PluginManager().disable_plugin(plugin)
 
     def start_instance(self) -> None:
         """启动go-cqhttp"""

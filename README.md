@@ -1,29 +1,80 @@
 # KenkoGoClient
 
 ![Python Version](https://img.shields.io/badge/python-3.9.13-blue)
-![License](https://img.shields.io/github/license/AkagiYui/KenkoGoClient)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/m/AkagiYui/KenkoGoClient)
+![License](https://img.shields.io/github/license/KenkoGoProject/KenkoGoClient)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/m/KenkoGoProject/KenkoGoClient)
 
-A Client of [KenkoGoServer](https://github.com/AkagiYui/KenkoGoServer)
+A Client of [KenkoGoServer](https://github.com/KenkoGoProject/KenkoGoServer)
 
 ## 功能介绍 Introduction
 
+该客户端提供了一个简单的[插件管理](docs/plugin.md)功能，可以实现基本的功能。
+
+- [x] 运行时 插件 启用/禁用
+- [ ] 插件配置持久化
+- [ ] 运行时 插件 加载/卸载
+- [ ] 插件 顺序调整
+- [ ] API 鉴权
+
 该项目只是一个简单的 HTTP 与 WebSocket 客户端，你也可以编写属于你的 KenkoGoClient，
-或者使用[Web版](https://kenkogo.akagiyui.com) [kenkogo-webui](https://github.com/AkagiYui/kenkogo-webui)
+或者使用[Web版](https://kenkogo.akagiyui.com)界面: [kenkogo-webui](https://github.com/KenkoGoProject/kenkogo-webui)
 
 不过还是建议使用 [NoneBot2](https://v2.nonebot.dev/) 等功能更完善的客户端。
 
 ## 快速开始 Quick Start
+
+### Windows 10 PowerShell
+
+请确保你的机器有 **Python 3.9.13** 的环境，其他版本未经测试。
+
+1. 部署运行环境
+
+```ps
+git clone https://github.com/KenkoGoProject/KenkoGoClient
+cd ./KenkoGoClient
+python -m venv venv
+./venv/Scripts/activate
+python -m pip install -r ./requirements.txt
+cd ./src
+```
+
+2. 修改配置文件
+
+```ps
+cp config.yaml.bak config.yaml
+```
+
+其中，`host`为运行 KenkoGoServer 的计算机地址，`port`为端口号。
+
+3. 启动脚本
+
+```ps
+python ./main.py --debug
+```
+
+> 命令行参数说明
+> 
+> -h --help: 显示帮助信息
+> 
+> -a --auto-start: 自动启动 go-cqhttp
+> 
+> -d --debug: 开启调试模式，将输出更多信息
+> 
+> -c --config: 指定配置文件路径
+
+当控制台提示`KenkoGo Started`时，可输入`/help`查看可用的指令。
+
+### Linux Debian 11
 
 请确保你的机器有 **Python 3.9.13** 的环境，其他版本未经测试。
 
 1. 部署运行环境
 
 ```shell
-git clone https://github.com/AkagiYui/KenkoGoClient
+git clone https://github.com/KenkoGoProject/KenkoGoClient
 cd ./KenkoGoClient
-python -m venv venv
-./venv/Scripts/activate
+python3 -m venv venv
+source ./venv/bin/activate
 python -m pip install -r ./requirements.txt
 cd ./src
 ```
@@ -38,13 +89,9 @@ cp config.yaml.bak config.yaml
 
 3. 启动脚本
 
-```shell
+```ps
 python ./main.py --debug
 ```
-
-> 命令行参数说明
-> 
-> --debug: 开启调试模式，将输出更多信息
 
 当控制台提示`KenkoGo Started`时，可输入`/help`查看可用的指令。
 
@@ -90,16 +137,7 @@ python ./main.py --debug
 
 ### 待办事项 Todo
 
-- [ ] 集成 [Socket.IO](https://github.com/miguelgrinberg/python-socketio)
-- [ ] 集成 [distro](https://github.com/python-distro/distro) 系统平台信息获取工具
-- [ ] 集成 [pydis](https://github.com/Zombie123456/pydis)
-- [ ] 集成 [retrying](https://github.com/rholder/retrying)
-- [ ] 编写 Nuitka 脚本
-- [ ] 运行时插件加载卸载
-- [ ] 运行时插件启用禁用
-- [ ] API 鉴权
-- [ ] 插件单独操作
-- [ ] 插件顺序调整
+- [ ] 编写 Nuitka 构建脚本
 
 ## 从代码开始 Start from Code
 
