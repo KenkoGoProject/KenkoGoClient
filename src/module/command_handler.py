@@ -26,6 +26,8 @@ HELP_TEXT = """支持的命令 Available commands:
 /reload: [reset]重载插件(未完成) Reload plugins(WIP)[/reset]
 /enable <name>: 启用插件 Enable plugin
 /disable <name>: 禁用插件 Disable plugin
+/up <name>: 上移插件 Move plugin up
+/down <name>: 下移插件 Move plugin down
 """
 
 
@@ -59,13 +61,19 @@ class CommandHandler(metaclass=SingletonType):
         elif command in {'/list', '/ls', 'ls'}:
             self.list_plugins()
         elif command == '/reload':
-            PluginManager().reload_all_plugin()
+            ...
         elif command.startswith('/enable'):
             command = command.removeprefix('/enable').strip()
             self.enable_plugin(command)
         elif command.startswith('/disable'):
             command = command.removeprefix('/disable').strip()
             self.disable_plugin(command)
+        elif command.startswith('/up'):
+            command = command.removeprefix('/up').strip()
+            self.up_plugin(command)
+        elif command.startswith('/down'):
+            command = command.removeprefix('/down').strip()
+            self.down_plugin(command)
         else:
             self.log.error('Invalid Command')
 
@@ -80,6 +88,22 @@ class CommandHandler(metaclass=SingletonType):
             self.log.error(f'Plugin {name} not found')
             return
         PluginManager().disable_plugin(plugin)
+
+    def up_plugin(self, name):
+        if not (plugin := PluginManager().get_plugin(name)):
+            self.log.error(f'Plugin {name} not found')
+            return
+        if not PluginManager().move_up_plugin(plugin):
+            self.log.error(f'Plugin {name} is already at the top')
+            return
+
+    def down_plugin(self, name):
+        if not (plugin := PluginManager().get_plugin(name)):
+            self.log.error(f'Plugin {name} not found')
+            return
+        if not PluginManager().move_down_plugin(plugin):
+            self.log.error(f'Plugin {name} is already at the bottom')
+            return
 
     def start_instance(self) -> None:
         """启动go-cqhttp"""

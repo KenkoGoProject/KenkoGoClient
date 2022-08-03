@@ -194,7 +194,10 @@ class PluginManager(metaclass=SingletonType):
     def get_plugin(self, name: str) -> Optional[Plugin]:
         """通过名称获取已加载的插件"""
         return next(
-            (plugin_ for plugin_ in self.plugin_list if plugin_.name == name or plugin_.class_name == name),
+            (plugin_ for plugin_ in self.plugin_list
+             if plugin_.name == name
+             or plugin_.class_name == name
+             or plugin_.module_name == name),
             None
         )
 
@@ -239,6 +242,44 @@ class PluginManager(metaclass=SingletonType):
         self.save_config()
         plugin.should_enable = plugin.enable
         return not plugin.enable
+
+    def move_up_plugin(self, plugin: Plugin) -> bool:
+        """向上移动插件
+
+        :param plugin: 插件
+        :return: 是否移动成功
+        """
+        for index, plugin_ in enumerate(self.plugin_list):
+            if plugin_ == plugin:
+                old_index = index
+                break
+        else:
+            return False
+        if old_index == 0:
+            return False
+        self.plugin_list.remove(plugin)
+        self.plugin_list.insert(old_index - 1, plugin)
+        self.save_config()
+        return True
+
+    def move_down_plugin(self, plugin: Plugin) -> bool:
+        """向下移动插件
+
+        :param plugin: 插件
+        :return: 是否移动成功
+        """
+        for index, plugin_ in enumerate(self.plugin_list):
+            if plugin_ == plugin:
+                old_index = index
+                break
+        else:
+            return False
+        if old_index == len(self.plugin_list) - 1:
+            return False
+        self.plugin_list.remove(plugin)
+        self.plugin_list.insert(old_index + 1, plugin)
+        self.save_config()
+        return True
 
     def polling_message(self, message: dict) -> None:
         """插件调用 on_message
