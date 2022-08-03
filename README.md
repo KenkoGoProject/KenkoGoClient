@@ -12,8 +12,8 @@ A Client of [KenkoGoServer](https://github.com/KenkoGoProject/KenkoGoServer)
 
 - [x] 运行时 插件 启用/禁用
 - [x] 插件配置持久化
+- [x] 插件 顺序调整
 - [ ] 运行时 插件 加载/卸载
-- [ ] 插件 顺序调整
 - [ ] API 鉴权
 
 该项目只是一个简单的 HTTP 与 WebSocket 客户端，你也可以编写属于你的 KenkoGoClient，

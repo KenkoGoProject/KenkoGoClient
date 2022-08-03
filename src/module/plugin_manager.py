@@ -79,7 +79,7 @@ class PluginManager(metaclass=SingletonType):
         """从模块加载插件"""
         user_config = Global().user_config
         host_and_port = f'{user_config.host}:{user_config.port}'
-
+        token = user_config.token
         for plugin in self.plugin_list:
             class_name = camelize(plugin.module_name.removesuffix('_kenko'))  # 将模块转换为类名
             plugin.class_name = class_name
@@ -97,9 +97,9 @@ class PluginManager(metaclass=SingletonType):
             class_: type = getattr(module, class_name)
             try:
                 object_: SimplePlugin = class_(
-                    GocqApi(host_and_port, class_name),
+                    GocqApi(host_and_port, token, class_name),
                     ClientApi(class_name),
-                    ServerApi(host_and_port, class_name)
+                    ServerApi(host_and_port, token, class_name)
                 )
                 if not object_.name:
                     raise ValueError('插件信息名称错误，请检查！ [red]name is error')
@@ -137,9 +137,9 @@ class PluginManager(metaclass=SingletonType):
             test_plugin.class_name = 'TestPlugin'
             try:
                 test_plugin.obj = TestPlugin(
-                    GocqApi(host_and_port, test_plugin.class_name),
+                    GocqApi(host_and_port, token, test_plugin.class_name),
                     ClientApi(test_plugin.class_name),
-                    ServerApi(host_and_port, test_plugin.class_name)
+                    ServerApi(host_and_port, token, test_plugin.class_name)
                 )
             except Exception as e:
                 self.log.exception(e)

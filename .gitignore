@@ -9,6 +9,10 @@ src/plugin.json
 *.jpg
 *.png
 *.mp3
+src/plugin
+!src/plugin/goodbye_world_kenko
+!src/plugin/coolq_kenko.py
+!src/plugin/hello_world_kenko.py
 
 ### Python template
 # Byte-compiled / optimized / DLL files

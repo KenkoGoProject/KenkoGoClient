@@ -7,6 +7,7 @@ from module.yaml_config import YamlConfig
 class UserConfig(metaclass=SingletonType):
     host = '127.0.0.1'  # 监听地址
     port = 18082  # 监听端口
+    token = ''  # api token
 
     data: YamlConfig = {}
 
@@ -25,10 +26,12 @@ class UserConfig(metaclass=SingletonType):
         # 读取配置
         self.port = int(self.data.get('port', self.port))
         self.host = str(self.data.get('host', self.host))
+        self.token = str(self.data.get('token', self.token))
 
         # 若配置项不存在，则创建配置项
         self.data.setdefault('port', self.port)
         self.data.setdefault('host', self.host)
+        self.data.setdefault('token', self.token)
 
         self.log.debug(f'Config loaded: {dict(self.data)}')
         if need_save:

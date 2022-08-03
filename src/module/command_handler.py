@@ -110,7 +110,8 @@ class CommandHandler(metaclass=SingletonType):
         user_config = Global().user_config
         host = user_config.host
         port = user_config.port
-        api = ServerApi(f'{host}:{port}', self.__class__.__name__)
+        token = user_config.token
+        api = ServerApi(f'{host}:{port}', token, self.__class__.__name__)
         api.start_instance()
 
     def stop_instance(self) -> None:
@@ -118,14 +119,16 @@ class CommandHandler(metaclass=SingletonType):
         user_config = Global().user_config
         host = user_config.host
         port = user_config.port
-        api = ServerApi(f'{host}:{port}', self.__class__.__name__)
+        token = user_config.token
+        api = ServerApi(f'{host}:{port}', token, self.__class__.__name__)
         api.stop_instance()
 
     def print_qrcode(self) -> None:
         user_config = Global().user_config
         host = user_config.host
         port = user_config.port
-        api = ServerApi(f'{host}:{port}', self.__class__.__name__)
+        token = user_config.token
+        api = ServerApi(f'{host}:{port}', token, self.__class__.__name__)
         code = api.get_qrcode()
         if not code:
             self.log.error('Failed to get qrcode')
@@ -136,7 +139,8 @@ class CommandHandler(metaclass=SingletonType):
         user_config = Global().user_config
         host = user_config.host
         port = user_config.port
-        api = ServerApi(f'{host}:{port}', self.__class__.__name__)
+        token = user_config.token
+        api = ServerApi(f'{host}:{port}', token, self.__class__.__name__)
         status = api.get_status()
         Global().console.print_object(status)
 

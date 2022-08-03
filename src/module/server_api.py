@@ -10,10 +10,11 @@ from module.logger_ex import LoggerEx, LogLevel
 
 class ServerApi:
     """ KenkoGoServer 接口"""
-    def __init__(self, host_and_port: str, name=None):
+    def __init__(self, host_and_port: str, token: str = None, name: str = None):
         """初始化
 
         :param host_and_port: 地址和端口，如：127.0.0.1:18082
+        :param token: api token
         :param name: 调用者名称
         """
         self.name = name or traceback.extract_stack()[-2].name
@@ -23,6 +24,8 @@ class ServerApi:
 
         self.base_url = f'http://{host_and_port}'  # 基础url
         self.r = requests.Session()  # 初始化 requests 对象
+        if token:
+            self.r.headers.update({'Authorization': f'Bearer {token}'})
 
     def stop_instance(self) -> bool:
         """停止实例

@@ -9,10 +9,11 @@ from module.logger_ex import LoggerEx, LogLevel
 class GocqApi:
     """go-cqhttp 原生 API"""
 
-    def __init__(self, host_and_port: str, name: str):
+    def __init__(self, host_and_port: str, token: str = None, name: str = None):
         """初始化
 
         :param host_and_port: 地址和端口，如：127.0.0.1:18082
+        :param token: api token
         :param name: 调用者名称
         """
         self.name = name or traceback.extract_stack()[-2].name
@@ -23,6 +24,8 @@ class GocqApi:
         self.base_url = f'http://{host_and_port}/client/api'  # 基础url
         self.r = requests.Session()  # 初始化 requests 对象
         self.r.headers.update({'Content-Type': 'application/json'})
+        if token:
+            self.r.headers.update({'Authorization': f'Bearer {token}'})
 
     def send_private_msg(self, user_id: int, message: str, auto_escape: bool = False, from_group: int = None) -> dict:
         """发送私聊消息
