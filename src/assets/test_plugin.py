@@ -13,7 +13,7 @@ class TestPlugin(SimplePlugin):
         self.server = server
         self.name = '测试插件'
         self.description = '该插件仅作调试用处'
-        self.version = '12.34.56'
+        self.version = 'Test Only'
 
     def on_message(self, message: dict) -> bool:
         if message['post_type'] == 'message':

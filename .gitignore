@@ -5,6 +5,7 @@ src/config.yaml
 src/assets/downloads
 src/assets/gocq
 src/gocq
+src/plugin.json
 *.jpg
 *.png
 *.mp3

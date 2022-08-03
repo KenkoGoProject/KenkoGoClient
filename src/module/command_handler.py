@@ -70,13 +70,13 @@ class CommandHandler(metaclass=SingletonType):
             self.log.error('Invalid Command')
 
     def enable_plugin(self, name) -> None:
-        if not (plugin := PluginManager().get_loaded_plugin(name)):
+        if not (plugin := PluginManager().get_plugin(name)):
             self.log.error(f'Plugin {name} not found')
             return
         PluginManager().enable_plugin(plugin)
 
     def disable_plugin(self, name) -> None:
-        if not (plugin := PluginManager().get_loaded_plugin(name)):
+        if not (plugin := PluginManager().get_plugin(name)):
             self.log.error(f'Plugin {name} not found')
             return
         PluginManager().disable_plugin(plugin)

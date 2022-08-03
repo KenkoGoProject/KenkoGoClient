@@ -28,7 +28,8 @@ class KenkoGo(metaclass=SingletonType):
         self.websocket_connected = False  # WebSocket 连接状态
 
         Global().plugin_manager = PluginManager()  # 初始化插件管理器
-        Global().plugin_manager.load_plugins()  # 加载插件
+        Global().plugin_manager.load_config()  # 加载旧插件
+        Global().plugin_manager.load_local_modules()  # 加载新插件
 
         # 初始化 WebSocket 服务
         user_config = Global().user_config
@@ -44,7 +45,8 @@ class KenkoGo(metaclass=SingletonType):
 
     def start(self) -> None:
         """启动KenkoGo"""
-        Global().plugin_manager.enable_all_plugin()  # 启用插件
+        Global().plugin_manager.initialize_modules()  # 初始化插件
+        Global().plugin_manager.enable_plugins()  # 启用插件
         self.start_websocket()  # 启动WebSocket连接
         self.log.info(f'{Global().app_name} started.')
 
