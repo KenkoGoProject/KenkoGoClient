@@ -87,6 +87,10 @@ class PluginManager(metaclass=SingletonType):
             self.log.debug(f'Loading module: [bold magenta]{class_name}', extra={'markup': True})
             try:
                 module: ModuleType = import_module(module_name)
+            except ModuleNotFoundError:
+                self.log.warning(f'Module [bold magenta]{module_name} [red]not found[reset], may be [bold red]removed',
+                                 extra={'markup': True})
+                continue
             except Exception as e:
                 self.log.exception(e)
                 continue

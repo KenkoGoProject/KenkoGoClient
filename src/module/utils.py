@@ -1,5 +1,7 @@
 import base64
+import hashlib
 from io import BytesIO, StringIO
+from typing import Union
 
 import qrcode
 from PIL import Image
@@ -26,6 +28,24 @@ def decode_qrcode(file_data: bytes) -> str:
 def base_64(file_data: bytes) -> str:
     """计算base64编码"""
     return base64.b64encode(file_data).decode()
+
+
+def checksum(file: Union[str, bytes], hash_factory=hashlib.md5, chunk_num_blocks=128) -> str:
+    """计算校验和
+    :param file: 文件路径或文件内容
+    :param hash_factory: 哈希算法
+    :param chunk_num_blocks: 分块数
+    """
+    h = hash_factory()
+    if isinstance(file, str):
+        with open(file, 'rb') as _f:
+            while chunk := _f.read(chunk_num_blocks * h.block_size):
+                h.update(chunk)
+    elif isinstance(file, bytes):
+        h.update(file)
+    else:
+        raise TypeError(f'{type(file)} is not supported')
+    return h.hexdigest()
 
 
 if __name__ == '__main__':

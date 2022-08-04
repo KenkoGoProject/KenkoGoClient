@@ -1,4 +1,3 @@
-from assets.cq_code import CqCode
 from assets.simple_plugin import SimplePlugin
 from module.client_api import ClientApi
 from module.gocq_api import GocqApi
@@ -17,8 +16,5 @@ class TestPlugin(SimplePlugin):
 
     def on_message(self, message: dict) -> bool:
         if message['post_type'] == 'message':
-            msg: str = message['raw_message']
-            if msg == 'tsa':
-                message['message'] = CqCode.record_local('D.mp3')
-                self.api.send_msg(message)
+            ...
         return True  # 返回True表示消息将被传递给下一个插件，否则表示消息被拦截

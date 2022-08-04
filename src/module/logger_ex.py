@@ -38,7 +38,10 @@ class LoggerEx:
         self.logger = logging.getLogger(self.name)
 
         if not self.logger.hasHandlers():
-            rich_handler = RichHandler(show_time=False, show_path=False, rich_tracebacks=True, tracebacks_show_locals=True)
+            rich_handler = RichHandler(show_time=False,
+                                       show_path=False,
+                                       rich_tracebacks=True,
+                                       tracebacks_show_locals=True)
             fmt_string = '%(asctime)s.%(msecs)03d '
             if show_name:
                 fmt_string += f'[{self.name}] '
@@ -92,8 +95,8 @@ if __name__ == '__main__':
 
     # haha()
 
-    log = LoggerEx('abcc')
+    log = LoggerEx('abc')
     log.info(233)
 
-    log = LoggerEx('abcc')
+    log = LoggerEx('abc')
     log.info(456)
