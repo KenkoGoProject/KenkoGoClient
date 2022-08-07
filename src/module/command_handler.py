@@ -23,7 +23,7 @@ HELP_TEXT = """支持的命令 Available commands:
 /qrcode: 显示登录二维码 Show qrcode of go-cqhttp
 
 /list：列出插件信息 List plugins
-/reload: 重载插件 Reload plugins
+/reload <name>: 重载插件 Reload plugins
 /enable <name>: 启用插件 Enable plugin
 /disable <name>: 禁用插件 Disable plugin
 /up <name>: 上移插件 Move plugin up
