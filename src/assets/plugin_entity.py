@@ -8,6 +8,7 @@ class Plugin:
 
     def __init__(self, module_name: str):
         self.module_name = module_name  # 插件模块名
+        self.module = None  # 插件模块
         self.should_enable = False  # 插件是否应该启用
 
         self.class_name = ''  # 插件类名

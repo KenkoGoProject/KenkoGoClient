@@ -11,6 +11,7 @@ A Client of [KenkoGoServer](https://github.com/KenkoGoProject/KenkoGoServer)
 该客户端提供了一个简单的[插件管理](docs/plugin.md)功能，可以实现基本的功能。
 
 - [x] 运行时 插件 启用/禁用
+- [x] 运行时 插件 重载
 - [x] 插件配置持久化
 - [x] 插件 顺序调整
 - [x] API 鉴权

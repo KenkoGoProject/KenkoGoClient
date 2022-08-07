@@ -59,6 +59,6 @@ class HelloWorld(SimplePlugin):
             msg: str = message['raw_message']
             if CqCode.at(message['self_id']) in msg:
                 print('有人叫我')
-                message['message'] = '你干嘛~~~哈哈~~哎哟~~'
+                message['message'] = '我希望你把篮球和鸡联系起来想想'
                 self.api.send_msg(message)
         return True  # 返回True表示消息将被传递给下一个插件，返回False表示消息被拦截

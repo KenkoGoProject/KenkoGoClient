@@ -1,3 +1,4 @@
+import importlib
 import json
 from importlib import import_module
 from json import JSONDecodeError
@@ -75,71 +76,110 @@ class PluginManager(metaclass=SingletonType):
                 self.plugin_list.append(new_plugin)
         return True
 
-    def initialize_modules(self) -> None:
-        """从模块加载插件"""
+    def initialize_module(self, plugin: Plugin) -> bool:
         user_config = Global().user_config
         host_and_port = f'{user_config.host}:{user_config.port}'
         token = user_config.token
+
+        class_name = camelize(plugin.module_name.removesuffix('_kenko'))  # 将模块转换为类名
+        plugin.class_name = class_name
+        module_name = f'plugin.{plugin.module_name}'
+        self.log.debug(f'Loading module: [bold magenta]{class_name}', extra={'markup': True})
+        try:
+            module: ModuleType = import_module(module_name)
+            plugin.module = module
+        except ModuleNotFoundError:
+            self.log.warning(f'Module [bold magenta]{module_name} [red]not found[reset], may be [bold red]removed',
+                             extra={'markup': True})
+            return False
+        except Exception as e:
+            self.log.exception(e)
+            return False
+        if not hasattr(module, class_name):
+            self.log.error(f'Class [bold magenta]{class_name} [red]not found',
+                           extra={'markup': True})
+            return False
+        class_: type = getattr(module, class_name)
+        try:
+            object_: SimplePlugin = class_(
+                GocqApi(host_and_port, token, class_name),
+                ClientApi(class_name),
+                ServerApi(host_and_port, token, class_name)
+            )
+            if not object_.name:
+                raise ValueError('插件信息名称错误，请检查！ [red]name is error')
+            if not object_.description:
+                raise ValueError('插件信息描述错误，请检查！ [red]description is error')
+            if not object_.version or object_.version == '#error#':
+                raise ValueError('插件信息版本错误，请检查！ [red]version is error')
+        except Exception as e:
+            self.log.error(
+                f'Plugin [bold magenta]{class_name}[/bold magenta] initialization [red]failed[/red]: {e}',
+                extra={'markup': True})
+            return False
+        plugin.name = object_.name
+        plugin.description = object_.description
+        plugin.version = object_.version
+        plugin.obj = object_
+        plugin.loaded = True
+        self.log.debug(f'[magenta]{plugin.class_name}[/magenta] initialized', extra={'markup': True})
+        try:
+            init_ok = object_.on_initialize() == object_
+        except Exception as e:
+            self.log.error(f'Plugin [bold magenta]{class_name}[/bold magenta] initializing [red]failed[/red]: {e}',
+                           extra={'markup': True})
+            return False
+        if init_ok:
+            self.log.debug(f'Plugin [bold magenta]{class_name}[/bold magenta] initialized',
+                           extra={'markup': True})
+            plugin.initialized = True
+            return True
+        return False
+
+    def reinitialize_module(self, plugin: Plugin) -> bool:
+        self.log.debug(f'Reinitializing plugin [bold magenta]{plugin.class_name}[/bold magenta]...')
+        if plugin.enable:
+            if not self.disable_plugin(plugin):
+                self.log.error(f'Plugin [bold magenta]{plugin.class_name}[/bold magenta] disabling [red]failed[/red]')
+                return False
+            plugin.should_enable = True
+        # if plugin.obj is not None:
+        #     del plugin.obj
+        #     sys.modules.pop(f'plugin.{plugin.module_name}')
+        if plugin.module is not None:
+            importlib.reload(plugin.module)
+        plugin.obj = None
+        plugin.loaded = False
+        plugin.initialized = False
+        if not self.initialize_module(plugin):
+            self.log.error(f'Plugin [bold magenta]{plugin.class_name}[/bold magenta] initialization [red]failed[/red]')
+            return False
+        if plugin.should_enable:
+            return self.enable_plugin(plugin)
+        return True
+
+    def initialize_modules(self) -> None:
+        """从模块加载插件"""
+        new_plugin_list = []
+
         for plugin in self.plugin_list:
-            class_name = camelize(plugin.module_name.removesuffix('_kenko'))  # 将模块转换为类名
-            plugin.class_name = class_name
-            module_name = f'plugin.{plugin.module_name}'
-            self.log.debug(f'Loading module: [bold magenta]{class_name}', extra={'markup': True})
             try:
-                module: ModuleType = import_module(module_name)
-            except ModuleNotFoundError:
-                self.log.warning(f'Module [bold magenta]{module_name} [red]not found[reset], may be [bold red]removed',
-                                 extra={'markup': True})
-                continue
+                self.initialize_module(plugin)
             except Exception as e:
                 self.log.exception(e)
-                continue
-            if not hasattr(module, class_name):
-                self.log.error(f'Class [bold magenta]{class_name} [red]not found',
-                               extra={'markup': True})
-                continue
-            class_: type = getattr(module, class_name)
-            try:
-                object_: SimplePlugin = class_(
-                    GocqApi(host_and_port, token, class_name),
-                    ClientApi(class_name),
-                    ServerApi(host_and_port, token, class_name)
-                )
-                if not object_.name:
-                    raise ValueError('插件信息名称错误，请检查！ [red]name is error')
-                if not object_.description:
-                    raise ValueError('插件信息描述错误，请检查！ [red]description is error')
-                if not object_.version or object_.version == '#error#':
-                    raise ValueError('插件信息版本错误，请检查！ [red]version is error')
-            except Exception as e:
-                self.log.error(
-                    f'Plugin [bold magenta]{class_name}[/bold magenta] initialization [red]failed[/red]: {e}',
-                    extra={'markup': True})
-                continue
-            plugin.name = object_.name
-            plugin.description = object_.description
-            plugin.version = object_.version
-            plugin.obj = object_
-            plugin.loaded = True
-            self.log.debug(f'[magenta]{plugin.class_name}[/magenta] initialized', extra={'markup': True})
-            try:
-                init_ok = object_.on_initialize() == object_
-            except Exception as e:
-                self.log.error(f'Plugin [bold magenta]{class_name}[/bold magenta] initializing [red]failed[/red]: {e}',
-                               extra={'markup': True})
-                continue
-            if init_ok:
-                self.log.debug(f'Plugin [bold magenta]{class_name}[/bold magenta] initialized',
-                               extra={'markup': True})
-                plugin.initialized = True
+            else:
+                if plugin.loaded:
+                    new_plugin_list.append(plugin)
 
-        new_plugin_list = [plugin for plugin in self.plugin_list if plugin.loaded]
         self.plugin_list = new_plugin_list
-
         self.save_config()
 
         # 测试模式下加载测试插件
         if Global().test_mode:
+            user_config = Global().user_config
+            host_and_port = f'{user_config.host}:{user_config.port}'
+            token = user_config.token
+
             test_plugin = Plugin('test_plugin')
             test_plugin.should_enable = True
             test_plugin.class_name = 'TestPlugin'

@@ -23,7 +23,7 @@ HELP_TEXT = """支持的命令 Available commands:
 /qrcode: 显示登录二维码 Show qrcode of go-cqhttp
 
 /list：列出插件信息 List plugins
-/reload: [reset]重载插件(未完成) Reload plugins(WIP)[/reset]
+/reload: 重载插件 Reload plugins
 /enable <name>: 启用插件 Enable plugin
 /disable <name>: 禁用插件 Disable plugin
 /up <name>: 上移插件 Move plugin up
@@ -60,36 +60,46 @@ class CommandHandler(metaclass=SingletonType):
             self.print_server_status()
         elif command in {'/list', '/ls', 'ls'}:
             self.list_plugins()
-        elif command == '/reload':
-            ...
-        elif command.startswith('/enable'):
-            command = command.removeprefix('/enable').strip()
+        elif command.startswith('/reload '):
+            command = command.removeprefix('/reload ').strip()
+            self.reload_plugin(command)
+        elif command.startswith('/r '):
+            command = command.removeprefix('/r ').strip()
+            self.reload_plugin(command)
+        elif command.startswith('/enable '):
+            command = command.removeprefix('/enable ').strip()
             self.enable_plugin(command)
-        elif command.startswith('/disable'):
-            command = command.removeprefix('/disable').strip()
+        elif command.startswith('/disable '):
+            command = command.removeprefix('/disable ').strip()
             self.disable_plugin(command)
-        elif command.startswith('/up'):
-            command = command.removeprefix('/up').strip()
+        elif command.startswith('/up '):
+            command = command.removeprefix('/up ').strip()
             self.up_plugin(command)
-        elif command.startswith('/down'):
-            command = command.removeprefix('/down').strip()
+        elif command.startswith('/down '):
+            command = command.removeprefix('/down ').strip()
             self.down_plugin(command)
         else:
             self.log.error('Invalid Command')
 
     def enable_plugin(self, name) -> None:
+        if not name:
+            return
         if not (plugin := PluginManager().get_plugin(name)):
             self.log.error(f'Plugin {name} not found')
             return
         PluginManager().enable_plugin(plugin)
 
     def disable_plugin(self, name) -> None:
+        if not name:
+            return
         if not (plugin := PluginManager().get_plugin(name)):
             self.log.error(f'Plugin {name} not found')
             return
         PluginManager().disable_plugin(plugin)
 
     def up_plugin(self, name):
+        if not name:
+            return
         if not (plugin := PluginManager().get_plugin(name)):
             self.log.error(f'Plugin {name} not found')
             return
@@ -98,12 +108,23 @@ class CommandHandler(metaclass=SingletonType):
             return
 
     def down_plugin(self, name):
+        if not name:
+            return
         if not (plugin := PluginManager().get_plugin(name)):
             self.log.error(f'Plugin {name} not found')
             return
         if not PluginManager().move_down_plugin(plugin):
             self.log.error(f'Plugin {name} is already at the bottom')
             return
+
+    def reload_plugin(self, name):
+        if not name:
+            return
+        if not (plugin := PluginManager().get_plugin(name)):
+            self.log.error(f'Plugin {name} not found')
+            return
+        if not PluginManager().reinitialize_module(plugin):
+            self.log.error(f'Plugin {name} failed to reload')
 
     def start_instance(self) -> None:
         """启动go-cqhttp"""
