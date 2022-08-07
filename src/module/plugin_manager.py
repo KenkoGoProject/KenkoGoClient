@@ -132,6 +132,10 @@ class PluginManager(metaclass=SingletonType):
                 self.log.debug(f'Plugin [bold magenta]{class_name}[/bold magenta] initialized',
                                extra={'markup': True})
                 plugin.initialized = True
+
+        new_plugin_list = [plugin for plugin in self.plugin_list if plugin.loaded]
+        self.plugin_list = new_plugin_list
+
         self.save_config()
 
         # 测试模式下加载测试插件

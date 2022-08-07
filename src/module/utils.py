@@ -22,7 +22,11 @@ def decode_qrcode(file_data: bytes) -> str:
     with BytesIO() as bytes_io:
         bytes_io.write(file_data)
         with Image.open(bytes_io) as img:
-            return pyzbar_decode(img)[0].data.decode('utf-8')
+            if a := pyzbar_decode(img):
+                b = a[0]
+                c = b.data
+                return c.decode('utf-8')
+    return ''
 
 
 def base_64(file_data: bytes) -> str:

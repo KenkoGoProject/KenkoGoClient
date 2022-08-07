@@ -132,8 +132,10 @@ class CommandHandler(metaclass=SingletonType):
         code = api.get_qrcode()
         if not code:
             self.log.error('Failed to get qrcode')
-        code_url = decode_qrcode(code)
-        print_qrcode(code_url)
+        if code_url := decode_qrcode(code):
+            print_qrcode(code_url)
+        else:
+            self.log.error('Failed to decode qrcode')
 
     def print_server_status(self) -> None:
         user_config = Global().user_config
@@ -155,6 +157,8 @@ class CommandHandler(metaclass=SingletonType):
 
         plugins = PluginManager().plugin_list
         for num, plugin in enumerate(plugins):
+            if not plugin.loaded:
+                continue
             enable_str = '[green]已启用 Enabled' if plugin.enable else '[red]已禁用 Disabled'
             table.add_row(str(num + 1), plugin.class_name, plugin.version, enable_str)
 
