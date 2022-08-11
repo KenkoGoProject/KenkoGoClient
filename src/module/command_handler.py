@@ -39,8 +39,8 @@ class CommandHandler(metaclass=SingletonType):
 
     def add(self, command: str) -> None:
         self.log.debug(f'Get command: {command}')
-        if command in {'/help', '/h'}:
-            Global().console.print(HELP_TEXT)
+        if command in {'/help', '/h', '?', '/?', '？'}:
+            self.log.print(HELP_TEXT)
         elif command == '/exit':
             Global().time_to_exit = True
         elif command == '/connect':
@@ -55,7 +55,7 @@ class CommandHandler(metaclass=SingletonType):
             self.print_qrcode()
         elif command == '/info':
             info = ClientApi(self.__class__.__name__).get_info()
-            Global().console.print_object(info)
+            self.log.print_object(info)
         elif command == '/status':
             self.print_server_status()
         elif command in {'/list', '/ls', 'ls'}:
@@ -165,10 +165,9 @@ class CommandHandler(metaclass=SingletonType):
         token = user_config.token
         api = ServerApi(f'{host}:{port}', token, self.__class__.__name__)
         status = api.get_status()
-        Global().console.print_object(status)
+        self.log.print(status)
 
-    @staticmethod
-    def list_plugins() -> None:
+    def list_plugins(self) -> None:
         """在控制台打印插件列表"""
         table = Table(title='插件 Plugins')
         table.add_column('序号 Number', justify='right')
@@ -183,4 +182,4 @@ class CommandHandler(metaclass=SingletonType):
             enable_str = '[green]已启用 Enabled' if plugin.enable else '[red]已禁用 Disabled'
             table.add_row(str(num + 1), plugin.class_name, plugin.version, enable_str)
 
-        Global().console.print(table)
+        self.log.print(table)

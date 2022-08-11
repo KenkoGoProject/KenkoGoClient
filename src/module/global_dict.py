@@ -12,8 +12,8 @@ class Global(metaclass=SingletonType):
 
     app_name = 'KenkoGoClient'  # 应用名称
     author_name = 'AkagiYui'  # 作者
-    version_num = 9  # 版本号
-    version_str = '0.2.3'  # 版本名称
+    version_num = 10  # 版本号
+    version_str = '0.2.4'  # 版本名称
     description = 'A simple client of KenkoGoServer'  # 描述
 
     ############
@@ -32,7 +32,6 @@ class Global(metaclass=SingletonType):
     ############
 
     user_config = None  # 用户配置  # type: UserConfig
-    console = None  # 控制台对象  # type: Console
     command_handler = None  # 命令处理器  # type: CommandHandler
     kenko_go = None  # 应用程序  # type: KenkoGo
     plugin_manager = None  # 插件管理器  # type: PluginManager

@@ -1,8 +1,12 @@
 import logging
 import traceback
 from logging import Formatter
+from typing import Union
 
+import rich
+from rich.console import ConsoleRenderable
 from rich.logging import RichHandler
+from rich.pretty import pprint
 
 
 class LogLevel(int):
@@ -47,15 +51,37 @@ class LoggerEx:
                 fmt_string += f'[{self.name}] '
             fmt_string += '%(message)s'
             rich_handler.setFormatter(Formatter(fmt=fmt_string, datefmt='%Y-%m-%d %H:%M:%S'))
+            self.console = rich_handler.console
             self.logger.addHandler(rich_handler)
         self.logger.setLevel(log_level)
 
     def set_level(self, level: int) -> None:
         """设置 logger 的 level
 
-        :param level: logger level
-        """
+        :param level: logger level"""
+
         self.logger.setLevel(level)
+
+    def print(self, *obj: Union[ConsoleRenderable, str], **kwargs) -> None:
+        """打印对象"""
+        if hasattr(self, 'console'):
+            self.console.print(*obj)
+        else:
+            rich.print(*obj, **kwargs)
+
+    @staticmethod
+    def print_object(_object) -> None:
+        """打印对象
+
+        :param _object: 欲打印对象"""
+        pprint(_object, expand_all=True)
+
+    def input(self, *args, **kwargs) -> str:
+        """打印 input"""
+        if hasattr(self, 'console'):
+            return self.console.input(*args, **kwargs)
+        else:
+            return input(*args, **kwargs)
 
     def debug(self, *args, **kwargs) -> None:
         """输出 debug 等级的日志"""

@@ -6,7 +6,6 @@ import sys
 from rich.traceback import install as install_rich_traceback
 
 from module.command_handler import CommandHandler
-from module.console import Console
 from module.global_dict import Global
 from module.logger_ex import LoggerEx, LogLevel
 from module.singleton_type import SingletonType
@@ -24,8 +23,7 @@ class Main(metaclass=SingletonType):
             raise KeyboardInterrupt
 
     def __init__(self):
-        Global().console = Console()  # 初始化控制台对象
-        install_rich_traceback(console=Global().console, show_locals=True)  # 捕获未处理的异常
+        install_rich_traceback(console=None, show_locals=True)  # 捕获未处理的异常
 
         # 命令行参数解析
         parser = argparse.ArgumentParser(
@@ -79,7 +77,7 @@ class Main(metaclass=SingletonType):
 
         while not Global().time_to_exit:
             try:
-                command = Global().console.input('> ')  # 获取用户输入
+                command = self.log.input('> ')  # 获取用户输入
                 command = command.strip()
             except (UnicodeDecodeError, EOFError, KeyboardInterrupt):
                 if Global().time_to_exit:
