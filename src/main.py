@@ -10,6 +10,7 @@ from module.global_dict import Global
 from module.logger_ex import LoggerEx, LogLevel
 from module.singleton_type import SingletonType
 from module.user_config import UserConfig
+from module.utils import change_console_title
 
 
 class Main(metaclass=SingletonType):
@@ -97,10 +98,8 @@ class Main(metaclass=SingletonType):
 
 
 if __name__ == '__main__':
-    # Windows下修改控制台窗口标题
-    with contextlib.suppress(Exception):
-        import ctypes
-        ctypes.windll.kernel32.SetConsoleTitleW(f'{Global().app_name} {Global().version_str}')
+    # 修改控制台窗口标题
+    change_console_title(f'{Global().app_name} {Global().version_str}')
 
     # 让PyCharm调试输出的信息换行
     if sys.gettrace() is not None:
