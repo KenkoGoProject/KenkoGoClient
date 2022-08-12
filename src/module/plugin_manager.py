@@ -10,7 +10,6 @@ from inflection import camelize
 
 from assets.plugin_entity import Plugin
 from assets.simple_plugin import SimplePlugin
-from assets.test_plugin import TestPlugin
 from module.client_api import ClientApi
 from module.global_dict import Global
 from module.gocq_api import GocqApi
@@ -18,6 +17,7 @@ from module.logger_ex import LoggerEx, LogLevel
 from module.message_manager import MessageManager
 from module.server_api import ServerApi
 from module.singleton_type import SingletonType
+from module.test_plugin import TestPlugin
 
 
 class PluginManager(metaclass=SingletonType):

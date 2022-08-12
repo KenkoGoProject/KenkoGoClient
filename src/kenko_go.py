@@ -3,6 +3,7 @@ import time
 
 from websocket import WebSocketApp
 
+from module.database import Database
 from module.global_dict import Global
 from module.logger_ex import LoggerEx, LogLevel
 from module.plugin_manager import PluginManager
@@ -27,6 +28,7 @@ class KenkoGo(metaclass=SingletonType):
         self.auto_reconnect = True  # 自动重连
         self.websocket_connected = False  # WebSocket 连接状态
 
+        Global().database = Database()  # 初始化数据库
         Global().plugin_manager = PluginManager()  # 初始化插件管理器
         Global().plugin_manager.load_config()  # 加载旧插件
         Global().plugin_manager.load_local_modules()  # 加载新插件
@@ -45,6 +47,7 @@ class KenkoGo(metaclass=SingletonType):
 
     def start(self) -> None:
         """启动KenkoGo"""
+        Global().database.connect()  # 建立数据库连接
         Global().plugin_manager.initialize_modules()  # 初始化插件
         Global().plugin_manager.enable_plugins()  # 启用插件
         self.start_websocket()  # 启动WebSocket连接
@@ -55,6 +58,7 @@ class KenkoGo(metaclass=SingletonType):
         self.log.debug(f'{Global().app_name} stopping.')
         Global().plugin_manager.disable_all_plugin()  # 禁用插件
         self.stop_websocket()  # 停止WebSocket连接
+        Global().database.disconnect()  # 断开数据库连接
         self.log.info(f'{Global().app_name} stopped, see you next time.')
 
     def start_websocket(self) -> None:

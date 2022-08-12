@@ -1,6 +1,6 @@
-from assets.message_config import MessageConfig
 from module.global_dict import Global
 from module.logger_ex import LoggerEx, LogLevel
+from module.message_config import MessageConfig
 from module.singleton_type import SingletonType
 from module.yaml_config import YamlConfig
 

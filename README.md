@@ -129,8 +129,8 @@ python ./main.py --debug
 - 依赖表生成工具: [pip-tools 6.8.0](https://github.com/jazzband/pip-tools/)
 - 导入排序工具: [isort 5.10.1](https://pycqa.github.io/isort/)
 - 代码格式化工具: [flake8 4.0.1](https://flake8.readthedocs.io/en/latest/) [mypy 0.971](https://mypy.readthedocs.io/en/latest/)
+- 数据库: [SQLite](https://www.sqlite.org/index.html)
 - ~~构建工具: [Nuitka](https://nuitka.net/) [下载地址](https://nuitka.net/doc/download.html)~~
-- ~~数据库: [SQLite](https://www.sqlite.org/index.html)~~
 - ~~自动构建: [GitHub Actions](https://https://docs.github.com/cn/actions)~~
 
 ### 运行时Python包  Runtime Python Package
@@ -143,6 +143,9 @@ python ./main.py --debug
 - [qrcode 7.3.1](https://github.com/lincolnloop/python-qrcode) 二维码生成工具
 - [pyzbar 0.1.9](https://pypi.org/project/pyzbar/) 二维码识别工具
 - [Pillow 9.2.0](https://python-pillow.org/) 图像处理工具
+- [peewee 3.15.1](https://github.com/coleifer/peewee/) ORM工具
+- [psutil 5.9.1](https://github.com/giampaolo/psutil) 系统信息获取工具
+- [distro 1.7.0](https://github.com/python-distro/distro) 系统平台信息获取工具
 
 ### 待办事项 Todo
 

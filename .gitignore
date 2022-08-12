@@ -9,6 +9,7 @@ src/plugin.json
 *.jpg
 *.png
 *.mp3
+*.db
 src/plugin
 !src/plugin/goodbye_world_kenko
 !src/plugin/coolq_kenko.py

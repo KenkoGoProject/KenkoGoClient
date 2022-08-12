@@ -16,12 +16,7 @@ class ClientApi:
     @staticmethod
     def get_info() -> dict:
         """获取Client的信息"""
-        return {
-            'app_name': Global().app_name,
-            'version': Global().version_str,
-            'connected': Global().kenko_go.websocket_connected,
-            'websocket_msg_count': Global().websocket_message_count,
-        }
+        return Global().information
 
     def disconnect(self) -> None:
         """断开连接"""

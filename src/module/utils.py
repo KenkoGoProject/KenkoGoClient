@@ -1,10 +1,15 @@
 import base64
 import contextlib
-import hashlib
 import ctypes
+import hashlib
+import os
+import platform
+from datetime import datetime
 from io import BytesIO, StringIO
 from typing import Union
 
+import distro
+import psutil
 import qrcode
 from PIL import Image
 from pyzbar.pyzbar import decode as pyzbar_decode
@@ -58,6 +63,62 @@ def change_console_title(title: str) -> None:
     """Windows 平台修改控制台标题"""
     with contextlib.suppress(Exception):
         ctypes.windll.kernel32.SetConsoleTitleW(title)
+
+
+def get_system_description() -> str:
+    """获取系统版本"""
+    system = platform.system().strip().lower()
+    if system.startswith('win'):
+        platform_system = 'Windows'
+        platform_version = platform.version()
+    else:
+        platform_system = distro.name(True)
+        platform_version = ''
+    return f'{platform_system} {platform_version} {platform.machine().strip()}'
+
+
+def get_system_memory_usage(round_: int = 4) -> float:
+    """获取系统内存使用率
+
+    :param round_: 保留小数位数
+    """
+    platform_memory = psutil.virtual_memory()
+    platform_memory_usage = 1 - platform_memory.available / platform_memory.total
+    platform_memory_usage *= 100
+    return round(platform_memory_usage, round_)
+
+
+def get_script_memory_usage(round_: int = 4) -> float:
+    """获取脚本内存占用率
+
+    :param round_: 保留小数位数
+    """
+    self_process = psutil.Process(os.getpid())
+    return round(self_process.memory_percent(), round_)
+
+
+def get_system_uptime() -> str:
+    """获取系统运行时间
+
+    :return: 系统运行时间 like: 24 days, 18:30:43
+    """
+    boot_time = datetime.fromtimestamp(psutil.boot_time())
+    curr_time = datetime.now()
+    uptime = curr_time - boot_time
+    return str(uptime).split('.')[0]
+
+
+def get_script_uptime() -> str:
+    """获取脚本运行时间
+
+    :return: 脚本运行时间 like: 24
+    """
+    self_process = psutil.Process(os.getpid())
+    curr_time = datetime.now()
+    start_time = self_process.create_time()
+    start_time = datetime.fromtimestamp(start_time)
+    uptime = curr_time - start_time
+    return str(uptime).split('.')[0]
 
 
 if __name__ == '__main__':

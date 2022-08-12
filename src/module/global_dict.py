@@ -1,6 +1,12 @@
+import platform
 from pathlib import Path
 
+import psutil
+
 from module.singleton_type import SingletonType
+from module.utils import (get_script_memory_usage, get_script_uptime,
+                          get_system_description, get_system_memory_usage,
+                          get_system_uptime)
 
 
 class Global(metaclass=SingletonType):
@@ -32,6 +38,7 @@ class Global(metaclass=SingletonType):
     ############
 
     user_config = None  # 用户配置  # type: UserConfig
+    database = None  # 数据库  # type: Database
     command_handler = None  # 命令处理器  # type: CommandHandler
     kenko_go = None  # 应用程序  # type: KenkoGo
     plugin_manager = None  # 插件管理器  # type: PluginManager
@@ -51,6 +58,26 @@ class Global(metaclass=SingletonType):
         # 创建目录
         for dir_ in [self.asset_dir, self.download_dir]:
             dir_.mkdir(parents=True, exist_ok=True)
+
+    @property
+    def information(self):
+        """获取应用信息"""
+        return {
+            'python_version': platform.python_version(),
+            'system_description': get_system_description(),
+
+            'system_cpu_present': psutil.cpu_percent(),
+            'system_memory_usage': get_system_memory_usage(),
+            'kenkogo_memory_usage': get_script_memory_usage(),
+
+            'system_uptime': get_system_uptime(),
+            'kenkogo_uptime': get_script_uptime(),
+
+            'app_name': self.app_name,
+            'version': self.version_str,
+            'connected': self.kenko_go.websocket_connected,
+            'websocket_msg_count': self.websocket_message_count,
+        }
 
 
 if __name__ == '__main__':
