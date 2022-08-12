@@ -13,7 +13,11 @@ class SimplePlugin:
         self.client = client
         self.server = server
         self.name = ''
-        self.description = ''
+        self.description = ''  # 插件描述
+        self.description_long = ''  # 长描述，用于插件详情页
+        self.author = ''  # 插件作者
+        self.help_text = ''  # 插件帮助文本
+        self.link = ''  # 插件链接
         self.version = '#error#'
 
     def on_initialize(self):

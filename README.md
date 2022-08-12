@@ -17,6 +17,14 @@ A Client of [KenkoGoServer](https://github.com/KenkoGoProject/KenkoGoServer)
 - [x] API 鉴权
 - [ ] 运行时 插件 加载/卸载
 
+---
+
+- [x] 忽略某些QQ号/群号
+- [ ] 接受/拒绝好友请求
+- [ ] 接受/拒绝群邀请
+
+---
+
 该项目只是一个简单的 HTTP 与 WebSocket 客户端，你也可以编写属于你的 KenkoGoClient，
 或者使用[Web版](https://kenkogo.akagiyui.com)界面: [kenkogo-webui](https://github.com/KenkoGoProject/kenkogo-webui)
 

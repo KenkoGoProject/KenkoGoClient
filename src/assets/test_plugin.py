@@ -16,5 +16,10 @@ class TestPlugin(SimplePlugin):
 
     def on_message(self, message: dict) -> bool:
         if message['post_type'] == 'message':
-            ...
+            msg: str = message['raw_message']
+            import re
+            if msg == 'tsa1':
+                from assets.cq_code import CqCode
+                message['message'] = CqCode.record_local('dyy.mp3')
+                self.api.send_msg(message)
         return True  # 返回True表示消息将被传递给下一个插件，否则表示消息被拦截

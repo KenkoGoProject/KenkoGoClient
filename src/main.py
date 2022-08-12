@@ -1,5 +1,4 @@
 import argparse
-import contextlib
 import signal
 import sys
 
@@ -51,7 +50,13 @@ class Main(metaclass=SingletonType):
         self.log: LoggerEx = LoggerEx(self.__class__.__name__)
         self.log.set_level(LogLevel.DEBUG if Global().debug_mode else LogLevel.INFO)
 
-        Global().user_config = UserConfig(args_known.config)  # 加载用户配置
+        # 加载用户配置
+        try:
+            Global().user_config = UserConfig(args_known.config)
+        except Exception as e:
+            self.log.exception(e)
+            Global().time_to_exit = True
+            self.log.critical('配置文件读取错误！请检查配置文件格式是否正确。')
 
         # 设置信号响应
         signal.signal(signal.SIGINT, self.signal_handler)
@@ -65,16 +70,17 @@ class Main(metaclass=SingletonType):
         self.log.debug(f'{Global().app_name} Starting...')
         app = None
 
-        try:
-            # 启动应用
-            from kenko_go import KenkoGo
-            app = KenkoGo()
-            Global().kenko_go = app
-            app.start()
-        except Exception as e:
-            self.log.exception(e)
-            Global().time_to_exit = True
-            self.log.critical('Critical Error, Application exits abnormally.')  # 发生致命错误，应用异常退出
+        if not Global().time_to_exit:
+            try:
+                # 启动应用
+                from kenko_go import KenkoGo
+                app = KenkoGo()
+                Global().kenko_go = app
+                app.start()
+            except Exception as e:
+                self.log.exception(e)
+                Global().time_to_exit = True
+                self.log.critical('Critical Error, Application exits abnormally.')  # 发生致命错误，应用异常退出
 
         while not Global().time_to_exit:
             try:

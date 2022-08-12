@@ -15,6 +15,7 @@ from module.client_api import ClientApi
 from module.global_dict import Global
 from module.gocq_api import GocqApi
 from module.logger_ex import LoggerEx, LogLevel
+from module.message_manager import MessageManager
 from module.server_api import ServerApi
 from module.singleton_type import SingletonType
 
@@ -37,6 +38,10 @@ class PluginManager(metaclass=SingletonType):
         self.plugin_list: List[Plugin] = []  # 插件列表
         self.plugins_loaded = False  # 插件是否已经加载
         self.local_config_path = Path(Global().root_dir, 'plugin.json')  # 插件配置文件路径
+        self.message_manager = MessageManager()  # 消息管理器
+        self.message_manager.on_initialize()
+        if Global().user_config.message_config.enable:
+            self.message_manager.on_enable()
 
     def save_config(self) -> bool:
         """保存插件配置"""
@@ -335,6 +340,8 @@ class PluginManager(metaclass=SingletonType):
         :param message: 消息
         :return: None
         """
+        if self.message_manager.on_message(message) is not True:
+            return
         for plugin_ in self.plugin_list:
             if not plugin_.enable:
                 continue
@@ -346,6 +353,7 @@ class PluginManager(metaclass=SingletonType):
 
     def polling_connected(self) -> None:
         """插件调用 on_connect"""
+        self.message_manager.on_connect()
         for plugin_ in self.plugin_list:
             if not plugin_.enable:
                 continue
@@ -356,6 +364,8 @@ class PluginManager(metaclass=SingletonType):
 
     def polling_disconnected(self) -> None:
         """插件调用 on_disconnect"""
+
+        self.message_manager.on_disconnect()
         for plugin_ in self.plugin_list:
             if not plugin_.enable:
                 continue
