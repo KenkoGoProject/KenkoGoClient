@@ -24,22 +24,9 @@ class MessageConfig(metaclass=SingletonType):
 
     def update(self, config: dict):
         for key, value in config.items():
-            if key == 'enable':
-                self.enable = value
-            elif key == 'administrators':
-                self.administrators = set(value)
-            elif key == 'block_self':
-                self.block_self = value
-            elif key == 'block_group':
-                self.block_group = value
-            elif key == 'block_private':
-                self.block_private = value
-            elif key == 'ignore_users':
-                self.ignore_users = set(value)
-            elif key == 'block_users':
-                self.block_users = set(value)
-            elif key == 'block_groups':
-                self.block_groups = set(value)
+            if hasattr(self, key):
+                t = type(getattr(self, key))
+                setattr(self, key, t(value))
 
     def __len__(self) -> int:
         return len(self.to_dict())

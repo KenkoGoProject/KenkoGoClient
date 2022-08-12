@@ -12,8 +12,8 @@ class Global(metaclass=SingletonType):
 
     app_name = 'KenkoGoClient'  # 应用名称
     author_name = 'AkagiYui'  # 作者
-    version_num = 11  # 版本号
-    version_str = '0.3.0'  # 版本名称
+    version_num = 12  # 版本号
+    version_str = '0.3.1'  # 版本名称
     description = 'A simple client of KenkoGoServer'  # 描述
 
     ############

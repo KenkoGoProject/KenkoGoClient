@@ -3,3 +3,12 @@ port: 18082  # HTTP服务器端口
 token: "1050314133akagiyui"  # HTTP服务器访问令牌
 message_manager:  # 消息管理器，提供了基础的自动化功能
   enable: true  # 是否启用消息管理器
+  administrators: !!set
+    1050314133:
+  block_self: true
+  block_group: false
+  block_private: false
+  ignore_users: !!set {}
+  block_users: !!set {}
+  block_groups: !!set {}
+

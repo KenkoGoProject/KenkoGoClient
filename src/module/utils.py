@@ -1,6 +1,7 @@
 import base64
 import contextlib
 import hashlib
+import ctypes
 from io import BytesIO, StringIO
 from typing import Union
 
@@ -55,7 +56,6 @@ def checksum(file: Union[str, bytes], hash_factory=hashlib.md5, chunk_num_blocks
 
 def change_console_title(title: str) -> None:
     """Windows 平台修改控制台标题"""
-    import ctypes
     with contextlib.suppress(Exception):
         ctypes.windll.kernel32.SetConsoleTitleW(title)
 
