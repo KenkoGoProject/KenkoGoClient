@@ -19,6 +19,7 @@ class UserConfig(metaclass=SingletonType):
         if Global().debug_mode:
             self.log.set_level(LogLevel.DEBUG)
         self.load()
+        self.message_config.save = self.save
 
     def load(self) -> None:
         self.log.debug(f'Loading config file: {self.file_path}')
@@ -48,5 +49,6 @@ class UserConfig(metaclass=SingletonType):
 
     def save(self) -> None:
         self.log.debug(f'Saving config file: {self.file_path}')
+        self.config_data['message_manager'] = self.message_config.to_dict()
         self.config_data.save()  # TODO: 写出时保留注释
         self.log.debug(f'Config saved: {dict(self.config_data)}')

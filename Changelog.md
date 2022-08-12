@@ -6,6 +6,9 @@
 - 支持了获取更多 KenkoGoClient 信息
 - 支持了从QQ获取屏幕截图
 - 支持了从QQ获取 KenkoGo 状态
+- 新增了获取群信息的接口
+- 修复了 MessageConfig 保存出错的问题
+- 支持了从QQ添加/移除群白名单
 
 ## 0.3.0
 

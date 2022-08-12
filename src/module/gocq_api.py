@@ -113,3 +113,17 @@ class GocqApi:
         self.log.info('[get_login_info]')
         response = self.r.get(f'{self.base_url}/get_login_info')
         return response.json()
+
+    def get_group_info(self, group_id: int, no_cache=False) -> dict:
+        """获取群信息
+
+        :param group_id: 群号
+        :param no_cache: 是否不使用缓存
+        :return: go-cqhttp API 返回值 """
+        self.log.info(f'[get_group_info] {group_id}')
+        d = {
+            'group_id': group_id,
+            'no_cache': no_cache
+        }
+        response = self.r.post(f'{self.base_url}/get_group_info', json=d)
+        return response.json()

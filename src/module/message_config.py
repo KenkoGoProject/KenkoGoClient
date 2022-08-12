@@ -5,14 +5,13 @@ from module.singleton_type import SingletonType
 
 class MessageConfig(metaclass=SingletonType):
     def __init__(self, save_function: Callable = None):
-        self.save = save_function
+        self.save = save_function or (lambda: None)
 
         self.enable = False  # 是否启用
         self.block_self = False  # 是否屏蔽自己的消息
         self.administrators: Set[int] = set()  # 管理员，无条件响应
         self.block_private = False  # 是否屏蔽私聊消息
         self.block_group = False  # 是否屏蔽群消息
-        self.ignore_users: Set[int] = set()  # 忽略的用户，直接交给插件
 
         self.whitelist_mode = False  # 白名单模式，仅响应白名单
         self.whitelist_users: Set[int] = set()  # 白名单用户
@@ -39,15 +38,15 @@ class MessageConfig(metaclass=SingletonType):
         return {
             'enable': self.enable,
 
-            'administrators': self.administrators,
-            'whitelist_mode': self.whitelist_mode,
             'block_self': self.block_self,
-            'block_group': self.block_group,
+            'administrators': self.administrators,
             'block_private': self.block_private,
+            'block_group': self.block_group,
 
+            'whitelist_mode': self.whitelist_mode,
             'whitelist_users': self.whitelist_users,
             'whitelist_groups': self.whitelist_groups,
-            'ignore_users': self.ignore_users,
+
             'block_users': self.block_users,
             'block_groups': self.block_groups,
         }
