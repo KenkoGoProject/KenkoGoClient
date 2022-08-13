@@ -18,7 +18,11 @@ ADMIN_HELP_TEXT = f"""超级管理员操作菜单：
 !set - 查看设置
 !ls - 列出白名单/黑名单
 !add - 将本群加入白名单
-!del - 将本群从白名单移除"""
+-!add u <QQ号> - 将QQ号加入白名单
+-!add g <群号> - 将群加入白名单
+!del - 将本群从白名单移除
+-!del u <QQ号> - 将QQ号从白名单移除
+-!del g <群号> - 将群从白名单移除"""
 
 HELP_TEXT = """操作菜单：
 !help - 显示帮助信息（即本信息）"""
@@ -95,13 +99,17 @@ class MessageManager(metaclass=SingletonType):
 
     def type_message(self, message: dict) -> bool:
         """收到 go-cqhttp 消息"""
-        msg = message['message'].strip()
-        user_id = message['user_id']
-        message_type = message['message_type']
+        msg: str = message['message'].strip()
+        user_id: int = message['user_id']
+        message_type: str = message['message_type']
 
         # 是否屏蔽自己的消息
         if self.config.block_self and user_id == message['self_id']:
             return False
+
+        # 全角转半角
+        if msg.startswith('！') and len(msg) > 1:
+            msg = '!' + msg[1:]
 
         # 管理员命令
         if user_id in self.config.administrators:
