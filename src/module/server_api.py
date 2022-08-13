@@ -4,6 +4,7 @@ from typing import Dict, Optional
 
 import requests
 
+from assets.server_status import ServerStatus
 from module.global_dict import Global
 from module.logger_ex import LoggerEx, LogLevel
 
@@ -84,7 +85,7 @@ class ServerApi:
         self.log.debug('Qrcode got.')
         return result
 
-    def get_status(self) -> Optional[dict]:
+    def get_status(self) -> Optional[ServerStatus]:
         """获取服务器状态
 
         :return: 服务器状态，None 表示获取失败
@@ -96,7 +97,7 @@ class ServerApi:
             self.log.error(f'Getting status failed: {e}')
             return None
         if result['code'] == 200:
-            return result['data']
+            return ServerStatus(**result['data'])
         self.log.error(f'Getting status failed: {result["msg"]}')
         return None
 

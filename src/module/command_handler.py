@@ -165,7 +165,7 @@ class CommandHandler(metaclass=SingletonType):
         token = user_config.token
         api = ServerApi(f'{host}:{port}', token, self.__class__.__name__)
         status = api.get_status()
-        self.log.print(status)
+        self.log.print_object(status)
 
     def list_plugins(self) -> None:
         """在控制台打印插件列表"""

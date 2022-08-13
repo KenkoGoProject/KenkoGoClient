@@ -1,3 +1,5 @@
+import json
+
 from assets.cq_code import CqCode
 from module.client_api import ClientApi
 from module.global_dict import Global
@@ -13,11 +15,12 @@ ADMIN_HELP_TEXT = f"""管理员操作菜单：
 !help - 显示帮助信息（非管理员特有）
 !status - 显示当前状态
 !screen - 截屏
+!ls - 列出白名单/黑名单
 !add - 将本群加入白名单
 !del - 将本群从白名单移除"""
 
 HELP_TEXT = """操作菜单：
-"""
+!help - 显示帮助信息（即本信息）"""
 
 
 class MessageManager(metaclass=SingletonType):
@@ -99,6 +102,7 @@ class MessageManager(metaclass=SingletonType):
         if self.config.block_self and user_id == message['self_id']:
             return False
 
+        # 管理员命令
         if user_id in self.config.administrators:
             if msg == '!h':  # 发送管理员操作菜单
                 message['message'] = ADMIN_HELP_TEXT
@@ -112,8 +116,15 @@ class MessageManager(metaclass=SingletonType):
                 message['message'] = self.get_status()
                 self.api.send_msg(message)
                 return False
+            elif msg == '!ls':  # 发送白名单/黑名单
+                message['message'] = 'white_users: ' + json.dumps(list(self.config.whitelist_users))
+                message['message'] += '\nwhite_groups: ' + json.dumps(list(self.config.whitelist_groups))
+                message['message'] += '\nblock_users: ' + json.dumps(list(self.config.block_users))
+                message['message'] += '\nblock_groups: ' + json.dumps(list(self.config.block_groups))
+                self.api.send_msg(message)
+                return False
             elif message_type == 'group':
-                if msg == '!?' :  # 判断群是否在白名单中
+                if msg == '!?':  # 判断群是否在白名单中
                     group_id = message['group_id']
                     group_info = self.api.get_group_info(group_id)['data']
                     group_name = group_info['group_name']
@@ -180,11 +191,28 @@ class MessageManager(metaclass=SingletonType):
 
     def get_status(self) -> str:
         """获取服务器状态"""
+        result = '****Server****'
         status = self.server.get_status()
-        import json
-        result = json.dumps(status, ensure_ascii=False, indent=4)
+        result += f'\nPython版本：{status.python_version}'
+        result += f'\n操作系统：{status.system_description}'
+        result += f'\nCPU占用：{status.system_cpu_present}%'
+        result += f'\n系统内存占用：{status.system_memory_usage}%'
+        result += f'\n脚本内存占用：{status.kenkogo_memory_usage}%'
+        result += f'\n系统运行时间：{status.system_uptime}'
+        result += f'\n脚本运行时间：{status.kenkogo_uptime}'
+        result += f'\n已接收实例消息数：{status.gocq_msg_count}'
+
+        result += '\n****Client****'
         status = self.client.get_info()
-        result += '\n' + json.dumps(status, ensure_ascii=False, indent=4)
+        result += f'\nPython版本：{status.python_version}'
+        result += f'\n操作系统：{status.system_description}'
+        result += f'\nCPU占用：{status.system_cpu_present}%'
+        result += f'\n系统内存占用：{status.system_memory_usage}%'
+        result += f'\n脚本内存占用：{status.kenkogo_memory_usage}%'
+        result += f'\n系统运行时间：{status.system_uptime}'
+        result += f'\n脚本运行时间：{status.kenkogo_uptime}'
+        result += f'\n脚本版本：{status.version}'
+        result += f'\n已接收服务器消息数：{status.websocket_message_count}'
         return result
 
 

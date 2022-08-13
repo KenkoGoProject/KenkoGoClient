@@ -1,5 +1,6 @@
 import traceback
 
+from assets.client_status import ClientStatus
 from module.global_dict import Global
 from module.logger_ex import LoggerEx, LogLevel
 
@@ -14,7 +15,7 @@ class ClientApi:
             self.log.set_level(LogLevel.DEBUG)
 
     @staticmethod
-    def get_info() -> dict:
+    def get_info() -> ClientStatus:
         """获取Client的信息"""
         return Global().information
 

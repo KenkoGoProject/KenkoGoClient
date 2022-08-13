@@ -3,6 +3,7 @@ from pathlib import Path
 
 import psutil
 
+from assets.client_status import ClientStatus
 from module.singleton_type import SingletonType
 from module.utils import (get_script_memory_usage, get_script_uptime,
                           get_system_description, get_system_memory_usage,
@@ -18,8 +19,8 @@ class Global(metaclass=SingletonType):
 
     app_name = 'KenkoGoClient'  # 应用名称
     author_name = 'AkagiYui'  # 作者
-    version_num = 12  # 版本号
-    version_str = '0.3.1'  # 版本名称
+    version_num = 13  # 版本号
+    version_str = '0.3.2'  # 版本名称
     description = 'A simple client of KenkoGoServer'  # 描述
 
     ############
@@ -60,24 +61,24 @@ class Global(metaclass=SingletonType):
             dir_.mkdir(parents=True, exist_ok=True)
 
     @property
-    def information(self):
+    def information(self) -> ClientStatus:
         """获取应用信息"""
-        return {
-            'python_version': platform.python_version(),
-            'system_description': get_system_description(),
+        return ClientStatus(
+            python_version=platform.python_version(),
+            system_description=get_system_description(),
 
-            'system_cpu_present': psutil.cpu_percent(),
-            'system_memory_usage': get_system_memory_usage(),
-            'kenkogo_memory_usage': get_script_memory_usage(),
+            system_cpu_present=psutil.cpu_percent(),
+            system_memory_usage=get_system_memory_usage(),
+            kenkogo_memory_usage=get_script_memory_usage(),
 
-            'system_uptime': get_system_uptime(),
-            'kenkogo_uptime': get_script_uptime(),
+            system_uptime=get_system_uptime(),
+            kenkogo_uptime=get_script_uptime(),
 
-            'app_name': self.app_name,
-            'version': self.version_str,
-            'connected': self.kenko_go.websocket_connected,
-            'websocket_msg_count': self.websocket_message_count,
-        }
+            connected=self.kenko_go.websocket_connected,
+            app_name=self.app_name,
+            version=self.version_str,
+            websocket_message_count=self.websocket_message_count,
+        )
 
 
 if __name__ == '__main__':
