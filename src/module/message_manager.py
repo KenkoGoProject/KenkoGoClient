@@ -9,12 +9,13 @@ from module.message_config import MessageConfig
 from module.server_api import ServerApi
 from module.singleton_type import SingletonType
 
-ADMIN_HELP_TEXT = f"""管理员操作菜单：
+ADMIN_HELP_TEXT = f"""超级管理员操作菜单：
 当前版本({Global().version_str})支持的命令：
 !h - 显示本信息
-!help - 显示帮助信息（非管理员特有）
+!help - 显示帮助信息（非超级管理员特有）
 !status - 显示当前状态
 !screen - 截屏
+!set - 查看设置
 !ls - 列出白名单/黑名单
 !add - 将本群加入白名单
 !del - 将本群从白名单移除"""
@@ -117,10 +118,20 @@ class MessageManager(metaclass=SingletonType):
                 self.api.send_msg(message)
                 return False
             elif msg == '!ls':  # 发送白名单/黑名单
-                message['message'] = 'white_users: ' + json.dumps(list(self.config.whitelist_users))
-                message['message'] += '\nwhite_groups: ' + json.dumps(list(self.config.whitelist_groups))
-                message['message'] += '\nblock_users: ' + json.dumps(list(self.config.block_users))
-                message['message'] += '\nblock_groups: ' + json.dumps(list(self.config.block_groups))
+                msg = '白名单用户: ' + json.dumps(list(self.config.whitelist_users))
+                msg += '\n白名单群聊: ' + json.dumps(list(self.config.whitelist_groups))
+                msg += '\n黑名单用户: ' + json.dumps(list(self.config.block_users))
+                msg += '\n黑名单群聊: ' + json.dumps(list(self.config.block_groups))
+                message['message'] = msg
+                self.api.send_msg(message)
+                return False
+            elif msg == '!set':  # 发送设置信息
+                msg = '超级管理员: ' + json.dumps(list(self.config.administrators))
+                msg += f'\n屏蔽自身消息: {self.config.block_self}'
+                msg += f'\n屏蔽私聊消息: {self.config.block_private}'
+                msg += f'\n屏蔽群聊消息: {self.config.block_group}'
+                msg += f'\n白名单模式（仅响应白名单内成员）: {self.config.whitelist_mode}'
+                message['message'] = msg
                 self.api.send_msg(message)
                 return False
             elif message_type == 'group':

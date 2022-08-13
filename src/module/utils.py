@@ -122,6 +122,4 @@ def get_script_uptime() -> str:
 
 
 if __name__ == '__main__':
-    # 假装是在内存中
-    with open('qrcode.png', 'rb') as f:
-        print(decode_qrcode(f.read()))
+    print(psutil.Process(os.getpid()).memory_full_info())
