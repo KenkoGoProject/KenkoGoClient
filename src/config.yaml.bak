@@ -1,14 +1,18 @@
-host: "127.0.0.1"  # HTTP服务器监听地址
-port: 18082  # HTTP服务器端口
+host: "127.0.0.1"  # Server服务器监听地址
+port: 18082  # Server服务器端口
 token: "1050314133akagiyui"  # HTTP服务器访问令牌
 message_manager:  # 消息管理器，提供了基础的自动化功能
-  enable: true  # 是否启用消息管理器
-  administrators: !!set
+  enable: true  # 启用消息管理器
+  block_self: true  # 屏蔽自己账号的消息
+  command_prefix: "!"  # 指令前缀
+  administrators: !!set  # 管理员列表
     1050314133:
-  block_self: true
-  block_group: false
-  block_private: false
-  ignore_users: !!set {}
-  block_users: !!set {}
-  block_groups: !!set {}
-
+  block_private: false  # 屏蔽私聊消息
+  block_group: false  # 屏蔽群聊消息
+  block_friend_request: false  # 屏蔽好友请求
+  block_group_invite: false  # 屏蔽群聊邀请
+  white_mode: false  # 白名单模式
+  whitelist_users: !! set {} # 白名单用户列表
+  whitelist_groups: !! set {} # 白名单群列表
+  block_users: !!set {}  # 屏蔽用户列表
+  block_groups: !!set {}  # 屏蔽群列表

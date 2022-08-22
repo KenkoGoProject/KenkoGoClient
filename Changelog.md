@@ -1,3 +1,11 @@
+## 0.3.3
+
+- fix: 修复了requirements缺少依赖的问题
+- perf: 简化插件模板
+- feat: 增加插件信息
+- feat: 增加服务器信息提示
+- docs: 添加TODOList
+
 ## 0.3.2
 
 - 格式化了`!status`的输出

@@ -1,5 +1,6 @@
 import json
 
+from assets.constants import VERSION_STR
 from assets.cq_code import CqCode
 from module.client_api import ClientApi
 from module.global_dict import Global
@@ -10,7 +11,7 @@ from module.server_api import ServerApi
 from module.singleton_type import SingletonType
 
 ADMIN_HELP_TEXT = f"""超级管理员操作菜单：
-当前版本({Global().version_str})支持的命令：
+当前版本({VERSION_STR})支持的命令：
 !h - 显示本信息
 !help - 显示帮助信息（非超级管理员特有）
 !status - 显示当前状态
@@ -52,12 +53,12 @@ class MessageManager(metaclass=SingletonType):
         self.log.print_object(self.config.to_dict())
 
     def on_initialize(self):
-        """插件初始化"""
+        """初始化"""
         self.log.debug('MessageManager initialized')
         return self
 
     def on_enable(self):
-        """插件被启用"""
+        """被启用"""
         self.enable = True
         self.log.debug('MessageManager enabled')
         return self
@@ -81,6 +82,14 @@ class MessageManager(metaclass=SingletonType):
             return self.type_message(message)
         elif post_type == 'notice':
             return self.type_notice(message)
+        elif post_type == 'request':
+            return self.type_request(message)
+        return True
+
+    def type_request(self, message: dict) -> bool:
+        """收到 go-cqhttp 请求"""
+        # request_type = message['request_type']
+        # user_id = message['user_id']
         return True
 
     def type_notice(self, message: dict) -> bool:
@@ -217,8 +226,8 @@ class MessageManager(metaclass=SingletonType):
         result += f'\nCPU占用：{status.system_cpu_present}%'
         result += f'\n系统内存占用：{status.system_memory_usage}%'
         result += f'\n脚本内存占用：{status.kenkogo_memory_usage}%'
-        result += f'\n系统运行时间：{status.system_uptime}'
-        result += f'\n脚本运行时间：{status.kenkogo_uptime}'
+        result += f'\n系统运行时长：{status.system_uptime}'
+        result += f'\n脚本运行时长：{status.kenkogo_uptime}'
         result += f'\n已接收实例消息数：{status.gocq_msg_count}'
 
         result += '\n****Client****'
@@ -228,8 +237,8 @@ class MessageManager(metaclass=SingletonType):
         result += f'\nCPU占用：{status.system_cpu_present}%'
         result += f'\n系统内存占用：{status.system_memory_usage}%'
         result += f'\n脚本内存占用：{status.kenkogo_memory_usage}%'
-        result += f'\n系统运行时间：{status.system_uptime}'
-        result += f'\n脚本运行时间：{status.kenkogo_uptime}'
+        result += f'\n系统运行时长：{status.system_uptime}'
+        result += f'\n脚本运行时长：{status.kenkogo_uptime}'
         result += f'\n脚本版本：{status.version}'
         result += f'\n已接收服务器消息数：{status.websocket_message_count}'
         return result

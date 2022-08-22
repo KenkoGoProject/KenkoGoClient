@@ -4,7 +4,7 @@
 
 ## 版本号 信息修改
 
-(src/module/global_dict)
+(src/assets/constants)
 
 VERSION_NUM 加一
 
@@ -23,13 +23,11 @@ flake8 src/ --max-line-length=127 --ignore=W503 --statistics --count
 mypy src/ --show-error-codes --follow-imports=skip --ignore-missing-imports --exclude src/module/atomicwrites
 ```
 
-## 更新 依赖表
+## 更新依赖表
 
-检查 `requirements*.in` 文件
+1. 检查 `requirements*.in` 文件
+2. 生成 requirements*.txt
 
 ```shell
-# 生成 requirements*.txt
 pip-compile  --annotation-style=line
 ```
-
-

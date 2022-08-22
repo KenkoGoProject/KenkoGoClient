@@ -4,6 +4,7 @@ import sys
 
 from rich.traceback import install as install_rich_traceback
 
+from assets.constants import APP_DESCRIPTION, APP_NAME, VERSION_STR
 from module.command_handler import CommandHandler
 from module.global_dict import Global
 from module.logger_ex import LoggerEx, LogLevel
@@ -27,7 +28,7 @@ class Main(metaclass=SingletonType):
 
         # 命令行参数解析
         parser = argparse.ArgumentParser(
-            description=f'{Global().app_name} - {Global().description}',  # 应用程序的描述
+            description=f'{APP_NAME} - {APP_DESCRIPTION}',  # 应用程序的描述
             add_help=False,  # 不输出自动生成的说明
             exit_on_error=False,  # 发生错误时不退出
         )
@@ -67,7 +68,7 @@ class Main(metaclass=SingletonType):
 
     def run_forever(self) -> None:
         """运行并阻塞"""
-        self.log.debug(f'{Global().app_name} Starting...')
+        self.log.debug(f'{APP_NAME} Starting...')
         app = None
 
         if not Global().time_to_exit:
@@ -99,13 +100,13 @@ class Main(metaclass=SingletonType):
         from kenko_go import KenkoGo
         if isinstance(app, KenkoGo):
             app.stop()
-        self.log.debug(f'{Global().app_name} Exits.')
+        self.log.debug(f'{APP_NAME} Exits.')
         sys.exit(Global().exit_code)
 
 
 if __name__ == '__main__':
     # 修改控制台窗口标题
-    change_console_title(f'{Global().app_name} {Global().version_str}')
+    change_console_title(f'{APP_NAME} {VERSION_STR}')
 
     # 让PyCharm调试输出的信息换行
     if sys.gettrace() is not None:

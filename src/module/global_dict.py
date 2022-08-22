@@ -4,6 +4,7 @@ from pathlib import Path
 import psutil
 
 from assets.client_status import ClientStatus
+from assets.constants import APP_NAME, VERSION_STR
 from module.singleton_type import SingletonType
 from module.utils import (get_script_memory_usage, get_script_uptime,
                           get_system_description, get_system_memory_usage,
@@ -11,17 +12,7 @@ from module.utils import (get_script_memory_usage, get_script_uptime,
 
 
 class Global(metaclass=SingletonType):
-    """单例模式，全局变量"""
-
-    ############
-    # 基础的信息 #
-    ############
-
-    app_name = 'KenkoGoClient'  # 应用名称
-    author_name = 'AkagiYui'  # 作者
-    version_num = 13  # 版本号
-    version_str = '0.3.2'  # 版本名称
-    description = 'A simple client of KenkoGoServer'  # 描述
+    """全局变量，单例模式"""
 
     ############
     # 全局的变量 #
@@ -75,8 +66,8 @@ class Global(metaclass=SingletonType):
             kenkogo_uptime=get_script_uptime(),
 
             connected=self.kenko_go.websocket_connected,
-            app_name=self.app_name,
-            version=self.version_str,
+            app_name=APP_NAME,
+            version=VERSION_STR,
             websocket_message_count=self.websocket_message_count,
         )
 

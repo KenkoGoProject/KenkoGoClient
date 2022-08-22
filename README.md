@@ -11,19 +11,14 @@ A Client of [KenkoGoServer](https://github.com/KenkoGoProject/KenkoGoServer)
 该客户端提供了一个简单的[插件管理](docs/plugin.md)功能，可以实现基本的功能。
 
 - [x] 运行时 插件 启用/禁用
-- [x] 运行时 插件 重载
+- [x] ~~运行时 插件 重载~~
 - [x] 插件配置持久化
 - [x] 插件 顺序调整
 - [x] API 鉴权
+- [x] 忽略某些私聊/群聊的消息
 - [ ] 运行时 插件 加载/卸载
-
----
-
-- [x] 忽略某些QQ号/群号
 - [ ] 接受/拒绝好友请求
 - [ ] 接受/拒绝群邀请
-
----
 
 该项目只是一个简单的 HTTP 与 WebSocket 客户端，你也可以编写属于你的 KenkoGoClient，
 或者使用[Web版](https://kenkogo.akagiyui.com)界面: [kenkogo-webui](https://github.com/KenkoGoProject/kenkogo-webui)
@@ -106,6 +101,7 @@ python ./main.py --debug
 
 ### 编写插件 [Plugin](docs/plugin.md)
 
+## 待办事项 [ToDo](docs/todo.md)
 
 ## 更新日志 [Changelog](Changelog.md)
 
@@ -130,8 +126,6 @@ python ./main.py --debug
 - 导入排序工具: [isort 5.10.1](https://pycqa.github.io/isort/)
 - 代码格式化工具: [flake8 4.0.1](https://flake8.readthedocs.io/en/latest/) [mypy 0.971](https://mypy.readthedocs.io/en/latest/)
 - 数据库: [SQLite](https://www.sqlite.org/index.html)
-- ~~构建工具: [Nuitka](https://nuitka.net/) [下载地址](https://nuitka.net/doc/download.html)~~
-- ~~自动构建: [GitHub Actions](https://https://docs.github.com/cn/actions)~~
 
 ### 运行时Python包  Runtime Python Package
 
@@ -147,22 +141,9 @@ python ./main.py --debug
 - [psutil 5.9.1](https://github.com/giampaolo/psutil) 系统信息获取工具
 - [distro 1.7.0](https://github.com/python-distro/distro) 系统平台信息获取工具
 
-### 待办事项 Todo
-
-- [ ] 编写 Nuitka 构建脚本
-
-## 从代码开始 Start from Code
-
 ### 代码检查 Code Lint
 
 ```shell
 python -m pip install -r ./requirements-dev.txt
 python ./code_lint.py
-```
-
-### 构建 Build
-
-```shell
-python -m pip install -r ./requirements-build.txt
-python ./build.py
 ```

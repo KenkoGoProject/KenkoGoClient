@@ -3,6 +3,8 @@ import time
 
 from websocket import WebSocketApp
 
+from assets.constants import (APP_DESCRIPTION, APP_NAME, VERSION_NUM,
+                              VERSION_STR)
 from module.database import Database
 from module.global_dict import Global
 from module.logger_ex import LoggerEx, LogLevel
@@ -20,9 +22,9 @@ class KenkoGo(metaclass=SingletonType):
             self.log.set_level(LogLevel.DEBUG)
 
         # 打印版本信息
-        self.log.info(f'{Global().app_name} - {Global().description}')
-        self.log.info(f'Version: {Global().version_str}')
-        self.log.debug(f'Version Num: {Global().version_num}')
+        self.log.info(f'{APP_NAME} - {APP_DESCRIPTION}')
+        self.log.info(f'Version: {VERSION_STR}')
+        self.log.debug(f'Version Num: {VERSION_NUM}')
 
         self.websocket_thread = None  # WebSocket 线程
         self.auto_reconnect = True  # 自动重连
@@ -51,15 +53,15 @@ class KenkoGo(metaclass=SingletonType):
         Global().plugin_manager.initialize_modules()  # 初始化插件
         Global().plugin_manager.enable_plugins()  # 启用插件
         self.start_websocket()  # 启动WebSocket连接
-        self.log.info(f'{Global().app_name} started.')
+        self.log.info(f'{APP_NAME} started.')
 
     def stop(self) -> None:
         """停止KenkoGo"""
-        self.log.debug(f'{Global().app_name} stopping.')
+        self.log.debug(f'{APP_NAME} stopping.')
         Global().plugin_manager.disable_all_plugin()  # 禁用插件
         self.stop_websocket()  # 停止WebSocket连接
         Global().database.disconnect()  # 断开数据库连接
-        self.log.info(f'{Global().app_name} stopped, see you next time.')
+        self.log.info(f'{APP_NAME} stopped, see you next time.')
 
     def start_websocket(self) -> None:
         """启动WebSocket连接"""
