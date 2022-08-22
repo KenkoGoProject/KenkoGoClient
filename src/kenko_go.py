@@ -100,7 +100,10 @@ class KenkoGo(metaclass=SingletonType):
             self.log.error(f'Received invalid message: {message}')
             return
 
-        if message['post_type'] == 'meta_event':
+        if message['post_type'] == 'server_event':
+            if message['meta_event_type'] == 'gocq_event':
+                self.log.info(f'Received gocq event: {message["message"]}')
+        elif message['post_type'] == 'meta_event':
             if message['meta_event_type'] == 'heartbeat':
                 # 收到心跳消息，忽略
                 ...
