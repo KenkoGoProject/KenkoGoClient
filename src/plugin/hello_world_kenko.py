@@ -1,24 +1,23 @@
 from assets.cq_code import CqCode
 from assets.simple_plugin import SimplePlugin
-from module.client_api import ClientApi
-from module.gocq_api import GocqApi
-from module.server_api import ServerApi
 
 
 class HelloWorld(SimplePlugin):
     """你可以继承 SimplePlugin 以省略一些方法"""
-    def __init__(self, api: GocqApi, client: ClientApi, server: ServerApi):
+    def __init__(self, *args, **kwargs):
         """实例初始化
 
         此处仅用作初始化插件信息，建议不要处理其他代码，以免发生异常情况
         """
-        super().__init__(api, client, server)
-        self.api = api
-        self.client = client
-        self.server = server
-        self.name = '你好，世界！'
-        self.description = '这是一个插件示例'
-        self.version = '1.0.0'
+        super().__init__(*args, **kwargs)
+        self.name = '你好，世界！'  # 插件名称
+        self.description = '这是一个插件示例'  # 插件描述
+        self.version = '1.0.0'  # 插件版本
+
+        self.description_long = ''  # 长描述，用于插件详情页
+        self.author = ''  # 插件作者
+        self.help_text = ''  # 插件帮助文本
+        self.link = ''  # 插件链接
 
     def on_initialize(self):
         """插件初始化，你可以在这里初始化一些依赖"""

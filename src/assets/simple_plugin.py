@@ -1,10 +1,16 @@
+import sys
+from pathlib import Path
+
 from module.client_api import ClientApi
 from module.gocq_api import GocqApi
+from module.logger_ex import LoggerEx
 from module.server_api import ServerApi
+
+PLUGIN_CLASS = 'SimplePlugin'
 
 
 class SimplePlugin:
-    def __init__(self, api: GocqApi, client: ClientApi, server: ServerApi):
+    def __init__(self, api: GocqApi, client: ClientApi, server: ServerApi, logger: LoggerEx = None):
         """实例初始化
 
         此处仅用作初始化插件信息，建议不要处理其他代码，以免发生异常情况
@@ -19,6 +25,8 @@ class SimplePlugin:
         self.help_text = ''  # 插件帮助文本
         self.link = ''  # 插件链接
         self.version = '#error#'
+        self.path = Path(__file__).parent.absolute()
+        sys.path.append(str(self.path))
 
     def on_initialize(self):
         """插件初始化，你可以在这里初始化一些依赖"""
