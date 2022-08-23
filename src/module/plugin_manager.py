@@ -237,12 +237,12 @@ class PluginManager(metaclass=SingletonType):
                 continue
             self.enable_plugin(plugin_)
 
-    def disable_all_plugin(self) -> None:
+    def disable_all_plugin(self, save: bool = False) -> None:
         """禁用所有插件"""
         for plugin_ in self.plugin_list:
             if not plugin_.enable:
                 continue
-            self.disable_plugin(plugin_)
+            self.disable_plugin(plugin_, save)
 
     def get_plugin(self, name: str) -> Optional[Plugin]:
         """通过名称获取已加载的插件"""
@@ -254,10 +254,11 @@ class PluginManager(metaclass=SingletonType):
             None
         )
 
-    def enable_plugin(self, plugin: Plugin) -> bool:
+    def enable_plugin(self, plugin: Plugin, save: bool = True) -> bool:
         """启用插件
 
         :param plugin: 插件
+        :param save: 是否记住状态
         :return: 是否启用成功
         """
         try:
@@ -269,14 +270,16 @@ class PluginManager(metaclass=SingletonType):
             self.log.info(f'[green]Enabled [bold magenta]{plugin.class_name} ', extra={'markup': True})
         else:
             self.log.error(f'[bold magenta]{plugin.class_name} [red]enable failed', extra={'markup': True})
-        self.save_config()
+        if save:
+            self.save_config()
         plugin.should_enable = plugin.enable
         return plugin.enable
 
-    def disable_plugin(self, plugin: Plugin) -> bool:
+    def disable_plugin(self, plugin: Plugin, save: bool = True) -> bool:
         """禁用插件
 
         :param plugin: 插件
+        :param save: 是否记住状态
         :return: 是否禁用成功
         """
         try:
@@ -292,7 +295,8 @@ class PluginManager(metaclass=SingletonType):
             self.log.error(f'[bold magenta]{plugin.class_name} [red]disable failed', extra={'markup': True})
         else:
             self.log.info(f'[orange1]Disabled [bold magenta]{plugin.class_name}', extra={'markup': True})
-        self.save_config()
+        if save:
+            self.save_config()
         plugin.should_enable = plugin.enable
         return not plugin.enable
 
