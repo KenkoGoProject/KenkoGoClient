@@ -1,5 +1,6 @@
 import json
 import time
+from threading import Thread
 
 from websocket import WebSocketApp
 
@@ -10,7 +11,7 @@ from module.global_dict import Global
 from module.logger_ex import LoggerEx, LogLevel
 from module.plugin_manager import PluginManager
 from module.singleton_type import SingletonType
-from module.thread_ex import ThreadEx
+from module.utils import kill_thread
 
 
 class KenkoGo(metaclass=SingletonType):
@@ -68,7 +69,7 @@ class KenkoGo(metaclass=SingletonType):
         if self.websocket_app.keep_running:
             self.log.warning('WebSocket already started.')
             return
-        self.websocket_thread = ThreadEx(target=self.websocket_app.run_forever, daemon=True)  # 一个线程只能运行一次
+        self.websocket_thread = Thread(target=self.websocket_app.run_forever, daemon=True)  # 一个线程只能运行一次
         self.websocket_thread.start()
 
     def stop_websocket(self) -> None:
@@ -78,7 +79,7 @@ class KenkoGo(metaclass=SingletonType):
             self.websocket_app.close()
             if self.websocket_app.keep_running:
                 self.log.warning('WebSocket close failed. Try to stop it forcibly.')
-                self.websocket_thread.kill()
+                kill_thread(self.websocket_thread)
             else:
                 self.log.debug('WebSocket close successfully.')
         else:

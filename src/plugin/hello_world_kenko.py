@@ -7,7 +7,7 @@ class HelloWorld(SimplePlugin):
     def __init__(self, *args, **kwargs):
         """实例初始化
 
-        此处仅用作初始化插件信息，建议不要处理其他代码，以免发生异常情况
+        插件初始化，你可以在这里初始化一些依赖
         """
         super().__init__(*args, **kwargs)
         self.name = '你好，世界！'  # 插件名称
@@ -18,11 +18,6 @@ class HelloWorld(SimplePlugin):
         self.author = ''  # 插件作者
         self.help_text = ''  # 插件帮助文本
         self.link = ''  # 插件链接
-
-    def on_initialize(self):
-        """插件初始化，你可以在这里初始化一些依赖"""
-        print('Initializing HelloWorld...')
-        return self  # 务必返回self
 
     def on_enable(self):
         """插件被启用"""

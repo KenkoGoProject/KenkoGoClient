@@ -2,10 +2,12 @@ import base64
 import contextlib
 import ctypes
 import hashlib
+import inspect
 import os
 import platform
 from datetime import datetime
 from io import BytesIO, StringIO
+from threading import Thread
 from typing import Union
 
 import distro
@@ -119,6 +121,20 @@ def get_script_uptime() -> str:
     start_time = datetime.fromtimestamp(start_time)
     uptime = curr_time - start_time
     return str(uptime).split('.')[0]
+
+
+def kill_thread(thread: Thread) -> None:
+    """强制结束线程，注意不得设计为类方法！"""
+    exctype = SystemExit
+    tid = ctypes.c_long(thread.ident)
+    if not inspect.isclass(exctype):
+        exctype = type(exctype)
+    res = ctypes.pythonapi.PyThreadState_SetAsyncExc(tid, ctypes.py_object(exctype))
+    if res == 0:
+        raise ValueError('invalid thread id')
+    elif res != 1:
+        ctypes.pythonapi.PyThreadState_SetAsyncExc(tid, None)
+        raise SystemError('PyThreadState_SetAsyncExc failed')
 
 
 if __name__ == '__main__':

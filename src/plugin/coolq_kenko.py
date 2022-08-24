@@ -1,16 +1,10 @@
 from assets.simple_plugin import SimplePlugin
-from module.client_api import ClientApi
-from module.gocq_api import GocqApi
-from module.server_api import ServerApi
 
 
 class Coolq(SimplePlugin):
 
-    def __init__(self, api: GocqApi, client: ClientApi, server: ServerApi):
-        super().__init__(api, client, server)
-        self.api = api
-        self.client = client
-        self.server = server
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.name = '仿CoolQ事件'
         self.description = '还原CoolQ事件的插件'
         self.version = '1.0.0'

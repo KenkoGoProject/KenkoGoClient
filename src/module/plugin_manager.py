@@ -127,19 +127,9 @@ class PluginManager(metaclass=SingletonType):
         plugin.version = object_.version
         plugin.obj = object_
         plugin.loaded = True
-        self.log.debug(f'[magenta]{plugin.class_name}[/magenta] initialized', extra={'markup': True})
-        try:
-            init_ok = object_.on_initialize() == object_
-        except Exception as e:
-            self.log.error(f'Plugin [bold magenta]{class_name}[/bold magenta] initializing [red]failed[/red]: {e}',
-                           extra={'markup': True})
-            return False
-        if init_ok:
-            self.log.debug(f'Plugin [bold magenta]{class_name}[/bold magenta] initialized',
-                           extra={'markup': True})
-            plugin.initialized = True
-            return True
-        return False
+        self.log.debug(f'Plugin [bold magenta]{class_name}[/bold magenta] initialized', extra={'markup': True})
+        plugin.initialized = True
+        return True
 
     def reinitialize_module(self, plugin: Plugin) -> bool:
         self.log.debug(f'Reinitializing plugin [bold magenta]{plugin.class_name}[/bold magenta]...')
@@ -201,14 +191,7 @@ class PluginManager(metaclass=SingletonType):
             test_plugin.description = test_plugin.obj.description
             test_plugin.version = test_plugin.obj.version
             test_plugin.loaded = True
-            try:
-                init_ok = test_plugin.obj.on_initialize() == test_plugin.obj
-            except Exception as e:
-                self.log.exception(e)
-                return
-            if init_ok:
-                test_plugin.initialized = True
-                self.plugin_list.append(test_plugin)
+            self.plugin_list.append(test_plugin)
 
     def load_local_modules(self) -> None:
         """加载本地的模块"""

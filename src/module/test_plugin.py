@@ -1,15 +1,9 @@
 from assets.simple_plugin import SimplePlugin
-from module.client_api import ClientApi
-from module.gocq_api import GocqApi
-from module.server_api import ServerApi
 
 
 class TestPlugin(SimplePlugin):
-    def __init__(self, api: GocqApi, client: ClientApi, server: ServerApi):
-        super().__init__(api, client, server)
-        self.api = api
-        self.client = client
-        self.server = server
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.name = '测试插件'
         self.description = '该插件仅作调试用处'
         self.version = 'Test Only'
