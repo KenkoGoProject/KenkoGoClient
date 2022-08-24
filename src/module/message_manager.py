@@ -100,9 +100,8 @@ class MessageManager(metaclass=SingletonType):
                 return False
         elif request_type == 'group':
             sub_type = message['sub_type']
-            if sub_type == 'invite':
-                if self.config.block_group_invite:
-                    return False
+            if sub_type == 'invite' and self.config.block_group_invite:
+                return False
         return True
 
     def type_notice(self, message: dict) -> bool:
@@ -132,7 +131,7 @@ class MessageManager(metaclass=SingletonType):
 
         # 全角转半角
         if msg.startswith('！') and len(msg) > 1:
-            msg = '!' + msg[1:]
+            msg = f'!{msg[1:]}'
 
         # 管理员命令
         if user_id in self.config.administrators:
@@ -152,7 +151,7 @@ class MessageManager(metaclass=SingletonType):
                 self.api.send_msg(message)
                 return False
             elif msg == 'ls':  # 发送白名单/黑名单
-                msg = '白名单用户: ' + json.dumps(list(self.config.whitelist_users))
+                msg = f'白名单用户: {json.dumps(list(self.config.whitelist_users))}'
                 msg += '\n白名单群聊: ' + json.dumps(list(self.config.whitelist_groups))
                 msg += '\n黑名单用户: ' + json.dumps(list(self.config.block_users))
                 msg += '\n黑名单群聊: ' + json.dumps(list(self.config.block_groups))
@@ -160,7 +159,7 @@ class MessageManager(metaclass=SingletonType):
                 self.api.send_msg(message)
                 return False
             elif msg == 'set':  # 发送设置信息
-                msg = '超级管理员: ' + json.dumps(list(self.config.administrators))
+                msg = f'超级管理员: {json.dumps(list(self.config.administrators))}'
                 msg += f'\n屏蔽自身消息: {self.config.block_self}'
                 msg += f'\n屏蔽私聊消息: {self.config.block_private}'
                 msg += f'\n屏蔽群聊消息: {self.config.block_group}'
@@ -219,7 +218,7 @@ class MessageManager(metaclass=SingletonType):
                     return False  # 屏蔽私聊消息
                 if self.config.whitelist_mode and user_id not in self.config.whitelist_users:
                     return False  # 屏蔽非白名单用户
-            if message_type == 'group':  # 群聊消息
+            elif message_type == 'group':  # 群聊消息
                 if self.config.block_group:
                     return False  # 屏蔽群聊消息
                 group_id = message['group_id']
