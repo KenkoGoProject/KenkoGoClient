@@ -14,6 +14,10 @@ class Plugin:
         self.class_name = ''  # 插件类名
         self.name = ''  # 插件名
         self.description = ''  # 插件描述
+        self.description_long = ''  # 长描述，用于插件详情页
+        self.author = ''  # 插件作者
+        self.help_text = ''  # 插件帮助文本
+        self.link = ''  # 插件链接
         self.version = ''  # 插件版本
 
         self.obj: Optional[SimplePlugin] = None  # 插件对象

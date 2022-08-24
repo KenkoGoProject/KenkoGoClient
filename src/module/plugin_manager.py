@@ -111,20 +111,24 @@ class PluginManager(metaclass=SingletonType):
                 ClientApi(class_name),
                 ServerApi(host_and_port, token, class_name)
             )
-            if not object_.name:
+            if not object_.PLUGIN_NAME:
                 raise ValueError('插件信息名称错误，请检查！ [red]name is error')
-            if not object_.description:
+            if not object_.PLUGIN_DESCRIPTION:
                 raise ValueError('插件信息描述错误，请检查！ [red]description is error')
-            if not object_.version or object_.version == '#error#':
+            if not object_.PLUGIN_VERSION or object_.PLUGIN_VERSION == '#ERROR#':
                 raise ValueError('插件信息版本错误，请检查！ [red]version is error')
         except Exception as e:
             self.log.error(
                 f'Plugin [bold magenta]{class_name}[/bold magenta] initialization [red]failed[/red]: {e}',
                 extra={'markup': True})
             return False
-        plugin.name = object_.name
-        plugin.description = object_.description
-        plugin.version = object_.version
+        plugin.name = object_.PLUGIN_NAME
+        plugin.description = object_.PLUGIN_DESCRIPTION
+        plugin.description_long = object_.PLUGIN_DESCRIPTION_LONG
+        plugin.author = object_.PLUGIN_AUTHOR
+        plugin.help_text = object_.PLUGIN_HELP_TEXT
+        plugin.link = object_.PLUGIN_LINK
+        plugin.version = object_.PLUGIN_VERSION
         plugin.obj = object_
         plugin.loaded = True
         self.log.debug(f'Plugin [bold magenta]{class_name}[/bold magenta] initialized', extra={'markup': True})
@@ -169,7 +173,7 @@ class PluginManager(metaclass=SingletonType):
         self.plugin_list = new_plugin_list
         self.save_config()
 
-        # 测试模式下加载测试插件
+        # 测试模式下加载测试插件，测试插件有完整的断点调试功能
         if Global().test_mode:
             user_config = Global().user_config
             host_and_port = f'{user_config.host}:{user_config.port}'
@@ -187,9 +191,14 @@ class PluginManager(metaclass=SingletonType):
             except Exception as e:
                 self.log.exception(e)
                 return
-            test_plugin.name = test_plugin.obj.name
-            test_plugin.description = test_plugin.obj.description
-            test_plugin.version = test_plugin.obj.version
+            test_plugin.name = test_plugin.obj.PLUGIN_NAME
+            test_plugin.description = test_plugin.obj.PLUGIN_DESCRIPTION
+            test_plugin.description_long = test_plugin.obj.PLUGIN_DESCRIPTION_LONG
+            test_plugin.author = test_plugin.obj.PLUGIN_AUTHOR
+            test_plugin.help_text = test_plugin.obj.PLUGIN_HELP_TEXT
+            test_plugin.link = test_plugin.obj.PLUGIN_LINK
+            test_plugin.version = test_plugin.obj.PLUGIN_VERSION
+            test_plugin.initialized = True
             test_plugin.loaded = True
             self.plugin_list.append(test_plugin)
 

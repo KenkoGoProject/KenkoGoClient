@@ -2,12 +2,9 @@ from assets.simple_plugin import SimplePlugin
 
 
 class Coolq(SimplePlugin):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.name = '仿CoolQ事件'
-        self.description = '还原CoolQ事件的插件'
-        self.version = '1.0.0'
+    PLUGIN_NAME = '仿CoolQ事件'  # 插件名称
+    PLUGIN_DESCRIPTION = '还原CoolQ事件的插件'  # 插件描述
+    PLUGIN_VERSION = '1.0.0'  # 插件版本
 
     def on_message(self, message: dict):
         if message['post_type'] == 'message':

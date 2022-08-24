@@ -2,10 +2,8 @@ from assets.simple_plugin import SimplePlugin
 
 
 class GoodbyeWorld(SimplePlugin):
-    """你可以在继承SimplePlugin的情况下只保留__init__方法"""
+    """你甚至可以在继承SimplePlugin的情况下只保留一些属性"""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.name = '再见，世界！'
-        self.description = '插件也可以是一个包'
-        self.version = '1.2.3'
+    PLUGIN_NAME = '再见，世界！'  # 插件名称
+    PLUGIN_DESCRIPTION = '插件也可以是一个包'  # 插件描述
+    PLUGIN_VERSION = '1.2.3'  # 插件版本
