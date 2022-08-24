@@ -13,6 +13,7 @@ class MessageConfig(metaclass=SingletonType):
         self.administrators: Set[int] = set()  # 管理员，无条件响应
         self.block_private = False  # 是否屏蔽私聊消息
         self.block_group = False  # 是否屏蔽群消息
+        self.block_guild = False  # 是否屏蔽频道消息
         self.block_friend_request = False  # 是否屏蔽好友请求
         self.block_group_invite = False  # 是否屏蔽群邀请
 
@@ -22,6 +23,27 @@ class MessageConfig(metaclass=SingletonType):
 
         self.block_users: Set[int] = set()  # 屏蔽的账号，使得插件不响应
         self.block_groups: Set[int] = set()  # 屏蔽的群，使得插件不响应
+
+    def to_dict(self) -> dict:
+        return {
+            'enable': self.enable,
+
+            'block_self': self.block_self,
+            'command_prefix': self.command_prefix,
+            'administrators': self.administrators,
+            'block_private': self.block_private,
+            'block_group': self.block_group,
+            'block_guild': self.block_guild,
+            'block_friend_request': self.block_friend_request,
+            'block_group_invite': self.block_group_invite,
+
+            'whitelist_mode': self.whitelist_mode,
+            'whitelist_users': self.whitelist_users,
+            'whitelist_groups': self.whitelist_groups,
+
+            'block_users': self.block_users,
+            'block_groups': self.block_groups,
+        }
 
     def __setattr__(self, key, value):
         super(MessageConfig, self).__setattr__(key, value)
@@ -36,23 +58,3 @@ class MessageConfig(metaclass=SingletonType):
 
     def __len__(self) -> int:
         return len(self.to_dict())
-
-    def to_dict(self) -> dict:
-        return {
-            'enable': self.enable,
-
-            'block_self': self.block_self,
-            'command_prefix': self.command_prefix,
-            'administrators': self.administrators,
-            'block_private': self.block_private,
-            'block_group': self.block_group,
-            'block_friend_request': self.block_friend_request,
-            'block_group_invite': self.block_group_invite,
-
-            'whitelist_mode': self.whitelist_mode,
-            'whitelist_users': self.whitelist_users,
-            'whitelist_groups': self.whitelist_groups,
-
-            'block_users': self.block_users,
-            'block_groups': self.block_groups,
-        }
