@@ -86,7 +86,7 @@ def on_message(self, message: dict) -> bool:
 
 ```python
 def on_enable(self):
-    print('HelloWorld enabled')
+    self.logger.info('HelloWorld enabled')
     return self
 ```
 
@@ -97,7 +97,7 @@ def on_enable(self):
 
 ```python
 def on_before_disable(self):
-    print('HelloWorld will be disabled')
+    self.logger.info('HelloWorld will be disabled')
     return self
 ```
 
@@ -108,7 +108,7 @@ def on_before_disable(self):
 
 ```python
 def on_disable(self):
-    print('HelloWorld disabled')
+    self.logger.info('HelloWorld disabled')
     return self
 ```
 
@@ -119,7 +119,7 @@ def on_disable(self):
 
 ```python
 def on_connect(self):
-    print('server connected')
+    self.logger.info('server connected')
     return self
 ```
 
@@ -130,7 +130,7 @@ def on_connect(self):
 
 ```python
 def on_disconnect(self):
-    print('server disconnected')
+    self.logger.info('server disconnected')
     return self
 ```
 
