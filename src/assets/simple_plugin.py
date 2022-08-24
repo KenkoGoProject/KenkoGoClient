@@ -10,7 +10,7 @@ PLUGIN_CLASS = 'SimplePlugin'
 
 
 class SimplePlugin:
-    def __init__(self, api: GocqApi, client: ClientApi, server: ServerApi, logger: LoggerEx = None):
+    def __init__(self, api: GocqApi, client: ClientApi, server: ServerApi):
         """实例初始化
 
         此处仅用作初始化插件信息，建议不要处理其他代码，以免发生异常情况
@@ -18,6 +18,7 @@ class SimplePlugin:
         self.api = api
         self.client = client
         self.server = server
+        self.logger = client.logger
         self.name = ''
         self.description = ''  # 插件描述
         self.description_long = ''  # 长描述，用于插件详情页
