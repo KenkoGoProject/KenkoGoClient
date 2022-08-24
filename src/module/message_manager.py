@@ -12,21 +12,24 @@ from module.singleton_type import SingletonType
 
 ADMIN_HELP_TEXT = f"""超级管理员操作菜单：
 当前版本({VERSION_STR})支持的命令：
-!h - 显示本信息
-!help - 显示帮助信息（非超级管理员特有）
-!status - 显示当前状态
-!screen - 截屏
-!set - 查看设置
-!ls - 列出白名单/黑名单
-!add - 将本群加入白名单
--!add u <QQ号> - 将QQ号加入白名单
--!add g <群号> - 将群加入白名单
-!del - 将本群从白名单移除
--!del u <QQ号> - 将QQ号从白名单移除
--!del g <群号> - 将群从白名单移除"""
+[CP]h - 显示本信息
+[CP]help - 显示帮助信息（非超级管理员特有）
+[CP]status - 显示当前状态
+[CP]screen - 截屏
+[CP]set - 查看设置
+[CP]ls - 列出白名单/黑名单
+[CP]? - 判断群是否在白名单中
+[CP]add - 将本群加入白名单
+[CP]del - 将本群从白名单移除
+
+--[CP]add u <QQ号> - 将QQ号加入白名单
+--[CP]add g <群号> - 将群加入白名单
+--[CP]del u <QQ号> - 将QQ号从白名单移除
+--[CP]del g <群号> - 将群从白名单移除"""
 
 HELP_TEXT = """操作菜单：
-!help - 显示帮助信息（即本信息）"""
+[CP]help - 显示帮助信息（即本信息）
+--[CP]? - 同上"""
 
 
 class MessageManager(metaclass=SingletonType):
@@ -50,7 +53,10 @@ class MessageManager(metaclass=SingletonType):
         self.server = ServerApi(host_and_port, token, self.__class__.__name__)
 
         self.config: MessageConfig = user_config.message_config
-        self.log.print_object(self.config.to_dict())
+        self.command_prefix = self.config.command_prefix
+        global ADMIN_HELP_TEXT, HELP_TEXT
+        ADMIN_HELP_TEXT = ADMIN_HELP_TEXT.replace('[CP]', self.command_prefix)
+        HELP_TEXT = HELP_TEXT.replace('[CP]', self.command_prefix)
 
     def on_initialize(self):
         """初始化"""
@@ -88,8 +94,15 @@ class MessageManager(metaclass=SingletonType):
 
     def type_request(self, message: dict) -> bool:
         """收到 go-cqhttp 请求"""
-        # request_type = message['request_type']
-        # user_id = message['user_id']
+        request_type = message['request_type']
+        if request_type == 'friend':
+            if self.config.block_friend_request:
+                return False
+        elif request_type == 'group':
+            sub_type = message['sub_type']
+            if sub_type == 'invite':
+                if self.config.block_group_invite:
+                    return False
         return True
 
     def type_notice(self, message: dict) -> bool:
@@ -111,6 +124,7 @@ class MessageManager(metaclass=SingletonType):
         msg: str = message['message'].strip()
         user_id: int = message['user_id']
         message_type: str = message['message_type']
+        command_prefix = self.command_prefix
 
         # 是否屏蔽自己的消息
         if self.config.block_self and user_id == message['self_id']:
@@ -122,19 +136,22 @@ class MessageManager(metaclass=SingletonType):
 
         # 管理员命令
         if user_id in self.config.administrators:
-            if msg == '!h':  # 发送管理员操作菜单
+            if not msg.startswith(command_prefix):
+                return True
+            msg = msg.removeprefix(command_prefix)
+            if msg == 'h':  # 发送管理员操作菜单
                 message['message'] = ADMIN_HELP_TEXT
                 self.api.send_msg(message)
                 return False
-            elif msg == '!screen':  # 发送屏幕截图
+            elif msg == 'screen':  # 发送屏幕截图
                 message['message'] = CqCode.image(get_screenshot())
                 self.api.send_msg(message)
                 return False
-            elif msg == '!status':  # 发送服务器信息
+            elif msg == 'status':  # 发送服务器信息
                 message['message'] = self.get_status()
                 self.api.send_msg(message)
                 return False
-            elif msg == '!ls':  # 发送白名单/黑名单
+            elif msg == 'ls':  # 发送白名单/黑名单
                 msg = '白名单用户: ' + json.dumps(list(self.config.whitelist_users))
                 msg += '\n白名单群聊: ' + json.dumps(list(self.config.whitelist_groups))
                 msg += '\n黑名单用户: ' + json.dumps(list(self.config.block_users))
@@ -142,7 +159,7 @@ class MessageManager(metaclass=SingletonType):
                 message['message'] = msg
                 self.api.send_msg(message)
                 return False
-            elif msg == '!set':  # 发送设置信息
+            elif msg == 'set':  # 发送设置信息
                 msg = '超级管理员: ' + json.dumps(list(self.config.administrators))
                 msg += f'\n屏蔽自身消息: {self.config.block_self}'
                 msg += f'\n屏蔽私聊消息: {self.config.block_private}'
@@ -152,7 +169,7 @@ class MessageManager(metaclass=SingletonType):
                 self.api.send_msg(message)
                 return False
             elif message_type == 'group':
-                if msg == '!?':  # 判断群是否在白名单中
+                if msg == '?':  # 判断群是否在白名单中
                     group_id = message['group_id']
                     group_info = self.api.get_group_info(group_id)['data']
                     group_name = group_info['group_name']
@@ -163,7 +180,7 @@ class MessageManager(metaclass=SingletonType):
                     message['message'] = msg
                     self.api.send_msg(message)
                     return False
-                elif msg == '!add':  # 将群加入白名单
+                elif msg == 'add':  # 将群加入白名单
                     group_id = message['group_id']
                     group_info = self.api.get_group_info(group_id)['data']
                     group_name = group_info['group_name']
@@ -176,7 +193,7 @@ class MessageManager(metaclass=SingletonType):
                     message['message'] = msg
                     self.api.send_msg(message)
                     return False
-                elif msg == '!del':  # 将群从白名单移除
+                elif msg == 'del':  # 将群从白名单移除
                     group_id = message['group_id']
                     group_info = self.api.get_group_info(group_id)['data']
                     group_name = group_info['group_name']
@@ -211,7 +228,7 @@ class MessageManager(metaclass=SingletonType):
                 if group_id in self.config.block_groups:
                     return False  # 屏蔽黑名单群聊
 
-        if msg == '!help':
+        if msg == 'help':
             message['message'] = HELP_TEXT
             self.api.send_msg(message)
             return False
