@@ -119,8 +119,6 @@ if __name__ == '__main__':
         log.error("Hello, World!")
         # log.trace("Hello, World!")
 
-    # haha()
-
     log = LoggerEx('abc')
     log.info(233)
 

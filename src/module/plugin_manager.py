@@ -1,5 +1,6 @@
 import importlib
 import json
+import sys
 from importlib import import_module
 from json import JSONDecodeError
 from pathlib import Path
@@ -142,20 +143,18 @@ class PluginManager(metaclass=SingletonType):
                 self.log.error(f'Plugin [bold magenta]{plugin.class_name}[/bold magenta] disabling [red]failed[/red]')
                 return False
             plugin.should_enable = True
-        # if plugin.obj is not None:
-        #     del plugin.obj
-        #     sys.modules.pop(f'plugin.{plugin.module_name}')
         if plugin.module is not None:
             importlib.reload(plugin.module)
+        if plugin.obj is not None:
+            del plugin.obj
+            sys.modules.pop(f'plugin.{plugin.module_name}')
         plugin.obj = None
         plugin.loaded = False
         plugin.initialized = False
         if not self.initialize_module(plugin):
             self.log.error(f'Plugin [bold magenta]{plugin.class_name}[/bold magenta] initialization [red]failed[/red]')
             return False
-        if plugin.should_enable:
-            return self.enable_plugin(plugin)
-        return True
+        return self.enable_plugin(plugin) if plugin.should_enable else True
 
     def initialize_modules(self) -> None:
         """从模块加载插件"""

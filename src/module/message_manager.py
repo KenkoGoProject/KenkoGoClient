@@ -234,6 +234,7 @@ class MessageManager(metaclass=SingletonType):
             return False
         return True
 
+    # noinspection DuplicatedCode
     def get_status(self) -> str:
         """获取服务器状态"""
         result = '****Server****'

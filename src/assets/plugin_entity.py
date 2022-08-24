@@ -31,9 +31,3 @@ class Plugin:
             'module_name': self.module_name,
             'should_enable': self.enable,
         }
-
-    def load_info(self) -> None:
-        """加载插件信息"""
-        self.name = self.obj.name
-        self.description = self.obj.description
-        self.version = self.obj.version
