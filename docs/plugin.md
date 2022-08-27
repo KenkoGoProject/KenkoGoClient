@@ -14,10 +14,7 @@ KenkoGoClient提供了一套简单的插件管理机制，你可以专注于你�
 
 ## 让我们开始编写插件吧！
 
-打开这个 `hello_world_kenko.py` 模块，可以发现里面有一个类 `HelloWorld`，
-注意类名一定要与文件名中的 `hello_world` 相对应，并且类名使用大驼峰命名，即所有单词的首字母都要大写。
-
-以上命名方法显然不符合一些命名规范，所以我们正在计划自定义类名，敬请期待。
+打开这个 `hello_world_kenko.py` 模块，可以发现里面有一个类 `HelloWorld`。
 
 ```python
 from assets.simple_plugin import SimplePlugin
@@ -38,6 +35,20 @@ class HelloWorld(SimplePlugin):
 你需要编写插件的基本信息，
 至少需要定义 `PLUGIN_NAME`、`PLUGIN_DESCRIPTION`和`PLUGIN_VERSION` 属性，
 否则插件将不会被加载。
+
+---
+
+值得注意的是，插件类名`HelloWorld`与文件名中的`hello_world`相对应，并且类名使用大驼峰命名，即所有单词的首字母都大写。
+以上命名方法显然不符合一些命名规范，所以你也可以在类外使用`PLUGIN_CLASS_NAME`变量来指定插件类名。
+
+```python
+# smile_api_kenko.py
+from assets.simple_plugin import SimplePlugin
+PLUGIN_CLASS_NAME = 'SmileAPI'
+
+class SmileAPI(SimplePlugin):
+    ...
+```
 
 ---
 

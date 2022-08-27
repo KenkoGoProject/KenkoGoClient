@@ -6,7 +6,7 @@ from module.gocq_api import GocqApi
 from module.logger_ex import LoggerEx
 from module.server_api import ServerApi
 
-PLUGIN_CLASS = 'SimplePlugin'
+PLUGIN_CLASS_NAME = 'SimplePlugin'
 
 
 class SimplePlugin:

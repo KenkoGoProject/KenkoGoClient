@@ -86,10 +86,8 @@ class PluginManager(metaclass=SingletonType):
         host_and_port = f'{user_config.host}:{user_config.port}'
         token = user_config.token
 
-        class_name = camelize(plugin.module_name.removesuffix('_kenko'))  # 将模块转换为类名
-        plugin.class_name = class_name
         module_name = f'plugin.{plugin.module_name}'
-        self.log.debug(f'Loading module: [bold magenta]{class_name}', extra={'markup': True})
+        self.log.debug(f'Loading module: [bold magenta]{plugin.module_name}', extra={'markup': True})
         try:
             module: ModuleType = import_module(module_name)
             plugin.module = module
@@ -100,9 +98,14 @@ class PluginManager(metaclass=SingletonType):
         except Exception as e:
             self.log.exception(e)
             return False
+
+        if hasattr(module, 'PLUGIN_CLASS_NAME'):
+            class_name: str = module.PLUGIN_CLASS_NAME
+        else:
+            class_name: str = camelize(plugin.module_name.removesuffix('_kenko'))  # 将模块转换为类名
+        plugin.class_name = class_name
         if not hasattr(module, class_name):
-            self.log.error(f'Class [bold magenta]{class_name} [red]not found',
-                           extra={'markup': True})
+            self.log.error(f'Class [bold magenta]{class_name} [red]not found in {module_name}', extra={'markup': True})
             return False
         class_: type = getattr(module, class_name)
         try:

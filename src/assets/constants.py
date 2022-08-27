@@ -1,7 +1,7 @@
 APP_NAME = 'KenkoGoClient'  # 应用名称
 AUTHOR_NAME = 'AkagiYui'  # 作者
-VERSION_NUM = 19  # 版本号
-VERSION_STR = '0.4.4'  # 版本名称
+VERSION_NUM = 20  # 版本号
+VERSION_STR = '0.4.5'  # 版本名称
 APP_DESCRIPTION = 'A simple client of KenkoGoServer'  # 描述
 
 

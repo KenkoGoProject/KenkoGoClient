@@ -1,4 +1,4 @@
-from typing import List, Optional, Type
+from typing import List, Type
 
 from peewee import Model
 from playhouse.apsw_ext import APSWDatabase

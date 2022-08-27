@@ -1,7 +1,7 @@
 from assets.simple_plugin import SimplePlugin
 
 
-class GoodbyeWorld(SimplePlugin):
+class GoodBye(SimplePlugin):
     """你甚至可以在继承SimplePlugin的情况下只保留一些属性"""
 
     PLUGIN_NAME = '再见，世界！'  # 插件名称
