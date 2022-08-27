@@ -40,7 +40,6 @@ class PluginManager(metaclass=SingletonType):
         self.plugins_loaded = False  # 插件是否已经加载
         self.local_config_path = Path(Global().root_dir, 'plugin.json')  # 插件配置文件路径
         self.message_manager = MessageManager()  # 消息管理器
-        self.message_manager.on_initialize()
         if Global().user_config.message_config.enable:
             self.message_manager.on_enable()
 

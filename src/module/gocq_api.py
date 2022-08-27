@@ -1,7 +1,10 @@
 import traceback
+from typing import Optional
 
 import requests
 
+from assets.api_result.send_msg_result import SendMsgResult
+from assets.api_result.stranger_info import StrangerInfo
 from module.global_dict import Global
 from module.logger_ex import LoggerEx, LogLevel
 
@@ -27,7 +30,8 @@ class GocqApi:
         if token:
             self.r.headers.update({'Authorization': f'Bearer {token}'})
 
-    def send_private_msg(self, user_id: int, message: str, auto_escape: bool = False, from_group: int = None) -> dict:
+    def send_private_msg(self, user_id: int, message: str, auto_escape: bool = False, from_group: int = None) \
+            -> Optional[SendMsgResult]:
         """发送私聊消息
 
         :param user_id: 目标 QQ 账号
@@ -45,7 +49,11 @@ class GocqApi:
             j['from_group'] = from_group
         self.log.info(f'[send_private_msg] {user_id}: {message[:100]}')
         response = self.r.post(f'{self.base_url}/send_private_msg', json=j)  # type: ignore[attr-defined]
-        return response.json()
+        j = response.json()
+        if j['retcode'] == 0:
+            d = j['data']
+            return SendMsgResult(d['message_id'])
+        return None
 
     def send_group_msg(self, group_id: int, message: str, auto_escape: bool = False) -> dict:
         """发送群聊消息
@@ -126,4 +134,51 @@ class GocqApi:
             'no_cache': no_cache
         }
         response = self.r.post(f'{self.base_url}/get_group_info', json=d)
+        return response.json()
+
+    def get_stranger_info(self, user_id: int, no_cache=False) -> Optional[StrangerInfo]:
+        """获取陌生人信息
+
+        :param user_id: 目标 QQ 账号
+        :param no_cache: 是否不使用缓存
+        :return: go-cqhttp API 返回值 """
+        self.log.info(f'[get_stranger_info] {user_id}')
+        d = {
+            'user_id': user_id,
+            'no_cache': no_cache
+        }
+        response = self.r.post(f'{self.base_url}/get_stranger_info', json=d)
+        j = response.json()
+        if j['retcode'] == 0:
+            d = j['data']
+            return StrangerInfo(
+                user_id=d['user_id'],
+                nickname=d['nickname'],
+                sex=d['sex'],
+                age=d['age'],
+                qid=d['qid'],
+                level=d['level'],
+                login_days=d['login_days']
+            )
+        return None
+
+    def get_nickname(self, user_id: int) -> Optional[str]:
+        """获取 QQ 号的昵称
+
+        :param user_id: 目标 QQ 账号
+        :return: QQ 昵称 """
+        if r := self.get_stranger_info(user_id):
+            return r.nickname
+        return None
+
+    def get_msg(self, message_id: int) -> dict:
+        """获取消息
+
+        :param message_id: 消息 ID
+        :return: go-cqhttp API 返回值 """
+        self.log.info(f'[get_msg] {message_id}')
+        d = {
+            'message_id': message_id
+        }
+        response = self.r.post(f'{self.base_url}/get_msg', json=d)
         return response.json()

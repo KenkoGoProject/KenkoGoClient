@@ -1,7 +1,9 @@
 import json
+from typing import Generator, List
 
-from assets.constants import VERSION_STR
+from assets.constants import ADMIN_HELP_TEXT, HELP_TEXT, INVITE_HELP_TEXT
 from assets.cq_code import CqCode
+from assets.database_tables.friend_request import FriendRequest
 from module.client_api import ClientApi
 from module.global_dict import Global
 from module.gocq_api import GocqApi
@@ -9,27 +11,6 @@ from module.logger_ex import LoggerEx, LogLevel
 from module.message_config import MessageConfig
 from module.server_api import ServerApi
 from module.singleton_type import SingletonType
-
-ADMIN_HELP_TEXT = f"""超级管理员操作菜单：
-当前版本({VERSION_STR})支持的命令：
-[CP]h - 显示本信息
-[CP]help - 显示帮助信息（非超级管理员特有）
-[CP]status - 显示当前状态
-[CP]screen - 截屏
-[CP]set - 查看设置
-[CP]ls - 列出白名单/黑名单
-[CP]? - 判断群是否在白名单中
-[CP]add - 将本群加入白名单
-[CP]del - 将本群从白名单移除
-
---[CP]add u <QQ号> - 将QQ号加入白名单
---[CP]add g <群号> - 将群加入白名单
---[CP]del u <QQ号> - 将QQ号从白名单移除
---[CP]del g <群号> - 将群从白名单移除"""
-
-HELP_TEXT = """操作菜单：
-[CP]help - 显示帮助信息（即本信息）
---[CP]? - 同上"""
 
 
 class MessageManager(metaclass=SingletonType):
@@ -54,14 +35,8 @@ class MessageManager(metaclass=SingletonType):
 
         self.config: MessageConfig = user_config.message_config
         self.command_prefix = self.config.command_prefix
-        global ADMIN_HELP_TEXT, HELP_TEXT
-        ADMIN_HELP_TEXT = ADMIN_HELP_TEXT.replace('[CP]', self.command_prefix)
-        HELP_TEXT = HELP_TEXT.replace('[CP]', self.command_prefix)
-
-    def on_initialize(self):
-        """初始化"""
-        self.log.debug('MessageManager initialized')
-        return self
+        for i in [ADMIN_HELP_TEXT, HELP_TEXT, INVITE_HELP_TEXT]:
+            setattr(self, i[0], i[1].replace('[CP]', self.command_prefix))
 
     def on_enable(self):
         """被启用"""
@@ -71,12 +46,10 @@ class MessageManager(metaclass=SingletonType):
 
     def on_connect(self):
         """已连接到KenkoGo服务器"""
-        ...
         return self
 
     def on_disconnect(self):
         """已断开服务器连接"""
-        ...
         return self
 
     def on_message(self, message: dict):
@@ -96,12 +69,41 @@ class MessageManager(metaclass=SingletonType):
         """收到 go-cqhttp 请求"""
         request_type = message['request_type']
         if request_type == 'friend':
+            self.log.info(f'收到好友请求：{message["user_id"]}({message["comment"]})')
+            if not self.config.ignore_friend_request:
+                if self.request_friend(message['user_id'], message['flag'], message['comment']):
+                    return False
             if self.config.block_friend_request:
                 return False
         elif request_type == 'group':
             sub_type = message['sub_type']
             if sub_type == 'invite' and self.config.block_group_invite:
                 return False
+        return True
+
+    def request_friend(self, user_id: int, flag: str, comment: str) -> bool:
+        """请求加好友
+
+        :param user_id: 好友QQ号
+        :param flag: 请求标识
+        :param comment: 备注
+        :return: 是否已处理
+        """
+        fr = FriendRequest(
+            user_id=user_id,
+            comment=comment,
+            flag=flag
+        )
+        if not fr.save():
+            self.log.error(f'记录好友请求失败：{fr}')
+        if stranger_info := self.api.get_stranger_info(user_id):
+            stranger_name = f'{stranger_info.nickname}({user_id})'
+        else:
+            stranger_name = f'{user_id}'
+        msg = f'收到好友请求。\n{stranger_name}：{comment}'
+        for admin in self.config.administrators:
+            msg += self.INVITE_HELP_TEXT.replace('[UUID]', fr.uuid)
+            self.api.send_private_msg(admin, msg)
         return True
 
     def type_notice(self, message: dict) -> bool:
@@ -113,7 +115,7 @@ class MessageManager(metaclass=SingletonType):
         if self.config.block_self and user_id == message['self_id']:
             return False
 
-        if notice_type == 'poke':    # 戳一戳
+        if notice_type == 'poke':  # 戳一戳
             ...
 
         return True
@@ -139,7 +141,7 @@ class MessageManager(metaclass=SingletonType):
                 return True
             msg = msg.removeprefix(command_prefix)
             if msg == 'h':  # 发送管理员操作菜单
-                message['message'] = ADMIN_HELP_TEXT
+                message['message'] = self.ADMIN_HELP_TEXT
                 self.api.send_msg(message)
                 return False
             elif msg == 'screen':  # 发送屏幕截图
@@ -164,6 +166,47 @@ class MessageManager(metaclass=SingletonType):
                 msg += f'\n屏蔽私聊消息: {self.config.block_private}'
                 msg += f'\n屏蔽群聊消息: {self.config.block_group}'
                 msg += f'\n白名单模式（仅响应白名单内成员）: {self.config.whitelist_mode}'
+                message['message'] = msg
+                self.api.send_msg(message)
+                return False
+            elif msg == 'todo':  # 发送待办事项
+                msg = ''
+                r: List[FriendRequest] = FriendRequest.select().order_by().where(FriendRequest.finish == False)  # noqa: E712
+                if r:
+                    msg += '好友请求：'
+                    for fr in r:
+                        msg += f'\n[{fr.uuid}]{self.api.get_nickname(fr.user_id)}({fr.user_id})：{fr.comment}'
+                    msg += self.INVITE_HELP_TEXT.replace('[UUID]', '[id]')
+                else:
+                    msg += '好友请求：无。'
+                message['message'] = msg
+                self.api.send_msg(message)
+                return False
+            elif msg.startswith('1 '):
+                uuid = msg.removeprefix('1 ').strip()
+                if fr := FriendRequest.get_or_none(FriendRequest.uuid == uuid, FriendRequest.finish == False):  # noqa: E712
+                    self.api.set_friend_add_request(fr.flag, True)
+                    fr.finish = True
+                    fr.finish_by = user_id
+                    fr.uuid = None
+                    fr.save(True)
+                    msg = f'已同意好友请求 {fr.flag}。'
+                else:
+                    msg = '未找到该请求！'
+                message['message'] = msg
+                self.api.send_msg(message)
+                return False
+            elif msg.startswith('0 '):
+                uuid = msg.removeprefix('0 ').strip()
+                if fr := FriendRequest.get_or_none(FriendRequest.uuid == uuid, FriendRequest.finish is False):
+                    self.api.set_friend_add_request(fr.flag, False)
+                    fr.finish = True
+                    fr.finish_by = user_id
+                    fr.uuid = None
+                    fr.save(True)
+                    msg = f'已拒绝好友请求 {fr.flag}。'
+                else:
+                    msg = '未找到该请求！'
                 message['message'] = msg
                 self.api.send_msg(message)
                 return False
@@ -227,8 +270,8 @@ class MessageManager(metaclass=SingletonType):
                 if group_id in self.config.block_groups:
                     return False  # 屏蔽黑名单群聊
 
-        if msg == 'help':
-            message['message'] = HELP_TEXT
+        if msg in {'help', '?'}:
+            message['message'] = self.HELP_TEXT
             self.api.send_msg(message)
             return False
         return True
@@ -260,12 +303,18 @@ class MessageManager(metaclass=SingletonType):
         result += f'\n已接收服务器消息数：{status.websocket_message_count}'
         return result
 
+    def tell_administrators(self, msg: str) -> Generator:
+        """向管理员发送消息"""
+        for user_id in self.config.administrators:
+            yield self.api.send_private_msg(user_id, msg)
+
 
 def get_screenshot() -> bytes:
     """截屏"""
     from io import BytesIO
 
     from PIL import ImageGrab
+
     with BytesIO() as f:
         ImageGrab.grab(all_screens=True).save(f, 'PNG')
         f.seek(0)

@@ -7,8 +7,9 @@ import os
 import platform
 from datetime import datetime
 from io import BytesIO, StringIO
+from math import inf
 from threading import Thread
-from typing import Union
+from typing import Any, Generator, Union
 
 import distro
 import psutil
@@ -137,5 +138,32 @@ def kill_thread(thread: Thread) -> None:
         raise SystemError('PyThreadState_SetAsyncExc failed')
 
 
+def deep_iter(data: Any, depth=inf, current_depth=1) -> Generator[Any, None, None]:
+    """
+    递归深度遍历数据
+
+    :param data: 数据
+    :param depth: 遍历深度，默认无限深度
+    :param current_depth: 当前深度
+    """
+    if isinstance(data, dict) and (depth and current_depth <= depth):
+        for key, value in data.items():
+            for child_path, child_value in deep_iter(value, depth=depth, current_depth=current_depth + 1):
+                yield [key] + child_path, child_value
+    else:
+        yield [], data
+
+
 if __name__ == '__main__':
-    print(psutil.Process(os.getpid()).memory_full_info())
+    for i in deep_iter({
+        'a': {
+            'b': {
+                'c': 'd',
+                'e': {
+                    'f': 'g'
+                }
+            },
+            'e': 'f'
+        },
+    }):
+        print(i)

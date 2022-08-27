@@ -14,6 +14,7 @@ class MessageConfig(metaclass=SingletonType):
         self.block_private = False  # 是否屏蔽私聊消息
         self.block_group = False  # 是否屏蔽群消息
         self.block_guild = False  # 是否屏蔽频道消息
+        self.ignore_friend_request = False  # 是否忽略好友请求
         self.block_friend_request = False  # 是否屏蔽好友请求
         self.block_group_invite = False  # 是否屏蔽群邀请
 
@@ -34,6 +35,7 @@ class MessageConfig(metaclass=SingletonType):
             'block_private': self.block_private,
             'block_group': self.block_group,
             'block_guild': self.block_guild,
+            'ignore_friend_request': self.ignore_friend_request,
             'block_friend_request': self.block_friend_request,
             'block_group_invite': self.block_group_invite,
 

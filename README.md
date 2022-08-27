@@ -129,17 +129,18 @@ python ./main.py --debug
 
 ### 运行时Python包  Runtime Python Package
 
-- [rich 12.5.1](https://github.com/Textualize/rich/blob/master/README.cn.md) 控制台美化工具
-- [ruamel.yaml 0.17.21](https://yaml.readthedocs.io/en/latest/) Yaml解析工具
+- [rich 12.5.1](https://github.com/Textualize/rich/blob/master/README.cn.md) 控制台美化
+- [ruamel.yaml 0.17.21](https://yaml.readthedocs.io/en/latest/) Yaml解析
 - [requests 2.28.1](https://requests.readthedocs.io/en/latest/) HTTP客户端
 - [websockets-client 1.3.3](https://github.com/websocket-client/websocket-client) Websocket 客户端
-- [inflection 0.5.1](https://github.com/jpvanhal/inflection) 字符串格式化工具
-- [qrcode 7.3.1](https://github.com/lincolnloop/python-qrcode) 二维码生成工具
-- [pyzbar 0.1.9](https://pypi.org/project/pyzbar/) 二维码识别工具
-- [Pillow 9.2.0](https://python-pillow.org/) 图像处理工具
+- [inflection 0.5.1](https://github.com/jpvanhal/inflection) 字符串格式化
+- [qrcode 7.3.1](https://github.com/lincolnloop/python-qrcode) 二维码生成
+- [pyzbar 0.1.9](https://pypi.org/project/pyzbar/) 二维码识别
+- [Pillow 9.2.0](https://python-pillow.org/) 图像处理
 - [peewee 3.15.1](https://github.com/coleifer/peewee/) ORM工具
-- [psutil 5.9.1](https://github.com/giampaolo/psutil) 系统信息获取工具
-- [distro 1.7.0](https://github.com/python-distro/distro) 系统平台信息获取工具
+- [apsw 3.39.2.0](https://github.com/rogerbinns/apsw/) Sqlite3增强
+- [psutil 5.9.1](https://github.com/giampaolo/psutil) 系统信息获取
+- [distro 1.7.0](https://github.com/python-distro/distro) 系统平台信息获取
 
 ### 代码检查 Code Lint
 

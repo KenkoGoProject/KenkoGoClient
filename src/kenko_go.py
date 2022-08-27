@@ -61,7 +61,7 @@ class KenkoGo(metaclass=SingletonType):
         self.log.debug(f'{APP_NAME} stopping.')
         Global().plugin_manager.disable_all_plugin()  # 禁用插件
         self.stop_websocket()  # 停止WebSocket连接
-        Global().database.disconnect()  # 断开数据库连接
+        Global().database.close()  # 断开数据库连接
         self.log.info(f'{APP_NAME} stopped, see you next time.')
 
     def start_websocket(self) -> None:
