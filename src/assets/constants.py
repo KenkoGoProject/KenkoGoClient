@@ -1,7 +1,7 @@
 APP_NAME = 'KenkoGoClient'  # 应用名称
 AUTHOR_NAME = 'AkagiYui'  # 作者
-VERSION_NUM = 17  # 版本号
-VERSION_STR = '0.4.1'  # 版本名称
+VERSION_NUM = 18  # 版本号
+VERSION_STR = '0.4.3'  # 版本名称
 APP_DESCRIPTION = 'A simple client of KenkoGoServer'  # 描述
 
 
@@ -32,5 +32,6 @@ HELP_TEXT = 'HELP_TEXT', """操作菜单：
 
 INVITE_HELP_TEXT = 'INVITE_HELP_TEXT', """
 
+忽略发送：[CP]0 [UUID]
 同意发送：[CP]1 [UUID]
-拒绝发送：[CP]0 [UUID]"""
+拒绝发送：[CP]2 [UUID]"""

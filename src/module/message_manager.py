@@ -196,8 +196,8 @@ class MessageManager(metaclass=SingletonType):
                 message['message'] = msg
                 self.api.send_msg(message)
                 return False
-            elif msg.startswith('0 '):
-                uuid = msg.removeprefix('0 ').strip()
+            elif msg.startswith('2 '):
+                uuid = msg.removeprefix('2 ').strip()
                 if fr := FriendRequest.get_or_none(FriendRequest.uuid == uuid, FriendRequest.finish is False):
                     self.api.set_friend_add_request(fr.flag, False)
                     fr.finish = True
@@ -205,6 +205,19 @@ class MessageManager(metaclass=SingletonType):
                     fr.uuid = None
                     fr.save(True)
                     msg = f'已拒绝好友请求 {fr.flag}。'
+                else:
+                    msg = '未找到该请求！'
+                message['message'] = msg
+                self.api.send_msg(message)
+                return False
+            elif msg.startswith('0 '):
+                uuid = msg.removeprefix('0 ').strip()
+                if fr := FriendRequest.get_or_none(FriendRequest.uuid == uuid, FriendRequest.finish is False):
+                    fr.finish = True
+                    fr.finish_by = user_id
+                    fr.uuid = None
+                    fr.save(True)
+                    msg = f'已忽略好友请求 {fr.flag}。'
                 else:
                     msg = '未找到该请求！'
                 message['message'] = msg
