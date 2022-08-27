@@ -20,10 +20,11 @@ A Client of [KenkoGoServer](https://github.com/KenkoGoProject/KenkoGoServer)
 - [ ] 接受/拒绝好友请求
 - [ ] 接受/拒绝群邀请
 
-该项目只是一个简单的 HTTP 与 WebSocket 客户端，你也可以编写属于你的 KenkoGoClient，
-或者使用[Web版](https://kenkogo.akagiyui.com)界面: [kenkogo-webui](https://github.com/KenkoGoProject/kenkogo-webui)
+该项目是一个内置了部分功能的Client，我的想法是：如果只是想要框架，不如自己直接使用Websocket连接实例。
+当然，你也可以精简我的这个项目或编写属于你的 KenkoGoClient，
+也可以使用[Web版](https://kenkogo.akagiyui.com)界面: [kenkogo-webui](https://github.com/KenkoGoProject/kenkogo-webui)。
 
-不过还是建议使用 [NoneBot2](https://v2.nonebot.dev/) 等功能更完善的客户端。
+但还是建议使用 [NoneBot2](https://v2.nonebot.dev/) 等功能更完善的客户端。
 
 ## 快速开始 Quick Start
 

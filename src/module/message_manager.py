@@ -1,4 +1,6 @@
+import html
 import json
+import re
 from typing import Generator, List
 
 from assets.constants import ADMIN_HELP_TEXT, HELP_TEXT, INVITE_HELP_TEXT
@@ -115,8 +117,10 @@ class MessageManager(metaclass=SingletonType):
         if self.config.block_self and user_id == message['self_id']:
             return False
 
-        if notice_type == 'poke':  # 戳一戳
-            ...
+        if notice_type == 'notify':
+            sub_type = message['sub_type']
+            if sub_type == 'poke':  # 戳一戳
+                ...
 
         return True
 
@@ -182,42 +186,25 @@ class MessageManager(metaclass=SingletonType):
                 message['message'] = msg
                 self.api.send_msg(message)
                 return False
-            elif msg.startswith('1 '):
-                uuid = msg.removeprefix('1 ').strip()
-                if fr := FriendRequest.get_or_none(FriendRequest.uuid == uuid, FriendRequest.finish == False):  # noqa: E712
-                    self.api.set_friend_add_request(fr.flag, True)
-                    fr.finish = True
-                    fr.finish_by = user_id
-                    fr.uuid = None
-                    fr.save(True)
-                    msg = f'已同意好友请求 {fr.flag}。'
-                else:
-                    msg = '未找到该请求！'
-                message['message'] = msg
-                self.api.send_msg(message)
-                return False
-            elif msg.startswith('2 '):
-                uuid = msg.removeprefix('2 ').strip()
-                if fr := FriendRequest.get_or_none(FriendRequest.uuid == uuid, FriendRequest.finish is False):
-                    self.api.set_friend_add_request(fr.flag, False)
-                    fr.finish = True
-                    fr.finish_by = user_id
-                    fr.uuid = None
-                    fr.save(True)
-                    msg = f'已拒绝好友请求 {fr.flag}。'
-                else:
-                    msg = '未找到该请求！'
-                message['message'] = msg
-                self.api.send_msg(message)
-                return False
-            elif msg.startswith('0 '):
-                uuid = msg.removeprefix('0 ').strip()
-                if fr := FriendRequest.get_or_none(FriendRequest.uuid == uuid, FriendRequest.finish is False):
-                    fr.finish = True
-                    fr.finish_by = user_id
-                    fr.uuid = None
-                    fr.save(True)
-                    msg = f'已忽略好友请求 {fr.flag}。'
+            elif msg[:2] in {'0 ', '1 ', '2 '}:  # 处理待办事项
+                action = msg[0]
+                uuid = msg[2:].strip()
+
+                uuid = html.unescape(uuid)
+                if not (uuid := re.match(r'\[?(\w+)]?', uuid)):
+                    return True
+                uuid = uuid[1]
+
+                if fr := FriendRequest.get_or_none(FriendRequest.uuid == uuid, FriendRequest.is_finish == False):  # noqa: E712
+                    fr.finish(user_id)
+                    if action == '1':
+                        self.api.set_friend_add_request(fr.flag, True)
+                        msg = f'已同意好友请求：{fr.flag}。'
+                    elif action == '2':
+                        self.api.set_friend_add_request(fr.flag, False)
+                        msg = f'已拒绝好友请求：{fr.flag}。'
+                    elif action == '0':
+                        msg = f'已忽略好友请求：{fr.flag}。'
                 else:
                     msg = '未找到该请求！'
                 message['message'] = msg

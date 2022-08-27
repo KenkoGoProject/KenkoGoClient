@@ -20,9 +20,7 @@ class Database(APSWDatabase, metaclass=SingletonType):
             self.log.set_level(LogLevel.DEBUG)
         self.log.debug(f'{self.__class__.__name__} initializing...')
         self.tables: List[Type[Model]] = [FriendRequest]
-        for table in self.tables:
-            # noinspection PyProtectedMember
-            table._meta.database = self
+        self.bind(self.tables)
 
     def connect(self, *args):
         if super().connect():
@@ -37,7 +35,3 @@ class Database(APSWDatabase, metaclass=SingletonType):
             self.log.error('disconnect failed')
         else:
             self.log.debug('disconnected')
-
-    @staticmethod
-    def get_one_not_finish_friend_request_by_uuid(uuid) -> Optional[FriendRequest]:
-        return FriendRequest.get_or_none(FriendRequest.uuid == uuid, FriendRequest.finish == False)  # noqa: E712
