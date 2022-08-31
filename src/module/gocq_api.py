@@ -1,10 +1,14 @@
 import traceback
+from json import JSONDecodeError
 from typing import Optional
 
 import requests
 
+from assets.api_result.group_info import GroupInfo
+from assets.api_result.login_info import LoginInfo
 from assets.api_result.send_msg_result import SendMsgResult
 from assets.api_result.stranger_info import StrangerInfo
+from assets.group_invite_type import GroupInviteType
 from module.global_dict import Global
 from module.logger_ex import LoggerEx, LogLevel
 
@@ -49,11 +53,11 @@ class GocqApi:
             j['from_group'] = from_group
         self.log.info(f'[send_private_msg] {user_id}: {message[:100]}')
         response = self.r.post(f'{self.base_url}/send_private_msg', json=j)  # type: ignore[attr-defined]
-        j = response.json()
-        if j['retcode'] == 0:
-            d = j['data']
-            return SendMsgResult(d['message_id'])
-        return None
+        try:
+            j = response.json()['data']
+            return SendMsgResult(j['message_id'])
+        except (JSONDecodeError, KeyError):
+            return None
 
     def send_group_msg(self, group_id: int, message: str, auto_escape: bool = False) -> dict:
         """发送群聊消息
@@ -96,12 +100,12 @@ class GocqApi:
         response = self.r.post(f'{self.base_url}/send_msg', json=d)  # type: ignore[attr-defined]
         return response.json()
 
-    def set_friend_add_request(self, flag: str, approve=True, remark: str = None) -> dict:
+    def set_friend_add_request(self, flag: str, approve=True, remark: str = None) -> bool:
         """同意/拒绝好友请求
 
         :param flag: 好友请求标识
         :param approve: 是否同意
-        :param remark: 备注，可选
+        :param remark: 好友备注，可选
         :return: go-cqhttp API 返回值
         """
         d = {
@@ -111,18 +115,51 @@ class GocqApi:
         }
         self.log.info(f'[set_friend_add_request] {flag} {remark} {approve}')
         response = self.r.post(f'{self.base_url}/set_friend_add_request', json=d)  # type: ignore[attr-defined]
-        return response.json()
+        j = response.json()
+        if j['retcode'] == 0:
+            return True
+        self.log.error(j)
+        return False
 
-    def get_login_info(self) -> dict:
+    def set_group_add_request(self, flag: str, sub_type: GroupInviteType, approve=True, reason: str = None) -> bool:
+        """同意/拒绝群邀请
+
+        :param flag: 好友请求标识
+        :param sub_type: 请求类型
+        :param approve: 是否同意
+        :param reason: 拒绝理由，仅在拒绝时有效
+        :return: go-cqhttp API 返回值
+        """
+        d = {
+            'flag': flag,
+            'sub_type': sub_type.value,
+            'approve': approve
+        }
+        if (not approve) and reason:
+            d['reason'] = reason
+        self.log.info(f'[set_group_add_request] {flag} {sub_type} {approve} {reason}')
+        response = self.r.post(f'{self.base_url}/set_group_add_request', json=d)
+        j = response.json()
+        if j['retcode'] == 0:
+            return True
+        self.log.error(j)
+        return False
+
+    def get_login_info(self) -> Optional[LoginInfo]:
         """获取登录号信息
 
         :return: go-cqhttp API 返回值
         """
         self.log.info('[get_login_info]')
         response = self.r.get(f'{self.base_url}/get_login_info')
-        return response.json()
+        try:
+            j = response.json()['data']
+            return LoginInfo(j['user_id'], j['nickname'])
+        except (JSONDecodeError, KeyError) as e:
+            self.log.exception(e)
+            return None
 
-    def get_group_info(self, group_id: int, no_cache=False) -> dict:
+    def get_group_info(self, group_id: int, no_cache=False) -> Optional[GroupInfo]:
         """获取群信息
 
         :param group_id: 群号
@@ -134,7 +171,20 @@ class GocqApi:
             'no_cache': no_cache
         }
         response = self.r.post(f'{self.base_url}/get_group_info', json=d)
-        return response.json()
+        try:
+            j = response.json()['data']
+            return GroupInfo(
+                group_id=j['group_id'],
+                group_name=j['group_name'],
+                group_memo=j['group_memo'] if 'group_memo' in j else None,
+                group_create_time=j['group_create_time'],
+                group_level=j['group_level'],
+                member_count=j['member_count'],
+                max_member_count=j['max_member_count']
+            )
+        except (JSONDecodeError, KeyError) as e:
+            self.log.exception(e)
+            return None
 
     def get_stranger_info(self, user_id: int, no_cache=False) -> Optional[StrangerInfo]:
         """获取陌生人信息
@@ -148,19 +198,19 @@ class GocqApi:
             'no_cache': no_cache
         }
         response = self.r.post(f'{self.base_url}/get_stranger_info', json=d)
-        j = response.json()
-        if j['retcode'] == 0:
-            d = j['data']
+        try:
+            j = response.json()['data']
             return StrangerInfo(
-                user_id=d['user_id'],
-                nickname=d['nickname'],
-                sex=d['sex'],
-                age=d['age'],
-                qid=d['qid'],
-                level=d['level'],
-                login_days=d['login_days']
+                user_id=j['user_id'],
+                nickname=j['nickname'],
+                sex=j['sex'],
+                age=j['age'],
+                qid=j['qid'],
+                level=j['level'],
+                login_days=j['login_days']
             )
-        return None
+        except (JSONDecodeError, KeyError):
+            return None
 
     def get_nickname(self, user_id: int) -> Optional[str]:
         """获取 QQ 号的昵称
@@ -172,7 +222,7 @@ class GocqApi:
         return None
 
     def get_msg(self, message_id: int) -> dict:
-        """获取消息
+        """获取消息，已知通过私聊回复得到的消息id有误
 
         :param message_id: 消息 ID
         :return: go-cqhttp API 返回值 """
@@ -182,3 +232,33 @@ class GocqApi:
         }
         response = self.r.post(f'{self.base_url}/get_msg', json=d)
         return response.json()
+
+    def is_in_group(self, group_id: int, user_id: int = None, no_cache=False) -> bool:
+        """检查用户是否在群内
+
+        :param group_id: 群号
+        :param user_id: 目标 QQ 账号，不填则为登录号
+        :param no_cache: 是否不使用缓存
+        :return: 是否在群内 """
+
+        self.log.info(f'[is_in_group] {group_id} {user_id if user_id else "self"}')
+        if user_id is not None:
+            d = {
+                'group_id': group_id,
+                'user_id': user_id,
+                'no_cache': no_cache
+            }
+            response = self.r.post(f'{self.base_url}/get_group_member_info', json=d)
+            j = response.json()
+            if j['retcode'] == 0:
+                return True
+            return False
+        else:
+            d = {
+                'group_id': group_id,
+            }
+            response = self.r.post(f'{self.base_url}/get_group_member_list', json=d)
+            j = response.json()
+            if j['retcode'] == 0:
+                return True
+            return False

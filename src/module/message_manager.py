@@ -1,11 +1,14 @@
 import html
 import json
 import re
+import threading
 from typing import Generator, List
 
 from assets.constants import ADMIN_HELP_TEXT, HELP_TEXT, INVITE_HELP_TEXT
 from assets.cq_code import CqCode
 from assets.database_tables.friend_request import FriendRequest
+from assets.database_tables.group_invite import GroupInvite
+from assets.group_invite_type import GroupInviteType
 from module.client_api import ClientApi
 from module.global_dict import Global
 from module.gocq_api import GocqApi
@@ -40,6 +43,8 @@ class MessageManager(metaclass=SingletonType):
         for i in [ADMIN_HELP_TEXT, HELP_TEXT, INVITE_HELP_TEXT]:
             setattr(self, i[0], i[1].replace('[CP]', self.command_prefix))
 
+        self.bot_id: int = -1  # 自身 QQ 号
+
     def on_enable(self):
         """被启用"""
         self.enable = True
@@ -48,6 +53,8 @@ class MessageManager(metaclass=SingletonType):
 
     def on_connect(self):
         """已连接到KenkoGo服务器"""
+        if r := self.api.get_login_info():
+            self.bot_id = r.user_id
         return self
 
     def on_disconnect(self):
@@ -79,8 +86,47 @@ class MessageManager(metaclass=SingletonType):
                 return False
         elif request_type == 'group':
             sub_type = message['sub_type']
-            if sub_type == 'invite' and self.config.block_group_invite:
-                return False
+            if sub_type == 'invite':
+                if self.request_group_invite(message['group_id'], message['flag'], message['user_id']):
+                    return False
+                if self.config.block_group_invite:
+                    return False
+        return True
+
+    def request_group_invite(self, group_id: int, flag: str, user_id: int) -> bool:
+        """机器人被邀请进群
+
+        :param group_id: 群号
+        :param flag: 请求标识
+        :param user_id: 邀请者
+        :return: 是否已处理
+        """
+        if stranger_info := self.api.get_stranger_info(user_id):
+            stranger_name = f'{stranger_info.nickname}({user_id})'
+        else:
+            stranger_name = f'{user_id}'
+        if group_info := self.api.get_group_info(group_id):
+            group_name = f'{group_info.group_name}({group_id})'
+        else:
+            group_name = f'{group_id}'
+
+        def deal_thread():
+            if self.api.is_in_group(group_id):
+                msg = f'已被 {stranger_name} 邀请进入了群聊：{group_name}。'
+            else:
+                gi = GroupInvite(
+                    group_id=group_id,
+                    user_id=user_id,
+                    flag=flag
+                )
+                if not gi.save():
+                    self.log.error(f'保存群邀请失败：{gi}')
+                msg = f'被 {stranger_name} 邀请进入群聊：{group_name}。'
+                msg += self.INVITE_HELP_TEXT.replace('[UUID]', gi.uuid)
+            for admin in self.config.administrators:
+                self.api.send_private_msg(admin, msg)
+
+        threading.Timer(2.0, deal_thread).start()
         return True
 
     def request_friend(self, user_id: int, flag: str, comment: str) -> bool:
@@ -103,8 +149,8 @@ class MessageManager(metaclass=SingletonType):
         else:
             stranger_name = f'{user_id}'
         msg = f'收到好友请求。\n{stranger_name}：{comment}'
+        msg += self.INVITE_HELP_TEXT.replace('[UUID]', fr.uuid)
         for admin in self.config.administrators:
-            msg += self.INVITE_HELP_TEXT.replace('[UUID]', fr.uuid)
             self.api.send_private_msg(admin, msg)
         return True
 
@@ -175,27 +221,41 @@ class MessageManager(metaclass=SingletonType):
                 return False
             elif msg == 'todo':  # 发送待办事项
                 msg = ''
-                r: List[FriendRequest] = FriendRequest.select().order_by().where(FriendRequest.finish == False)  # noqa: E712
+
+                r: List[FriendRequest] = FriendRequest.get_all_not_finish()
                 if r:
                     msg += '好友请求：'
-                    for fr in r:
-                        msg += f'\n[{fr.uuid}]{self.api.get_nickname(fr.user_id)}({fr.user_id})：{fr.comment}'
-                    msg += self.INVITE_HELP_TEXT.replace('[UUID]', '[id]')
+                    for gi in r:
+                        msg += f'\n[{gi.uuid}]{self.api.get_nickname(gi.user_id)}({gi.user_id})：{gi.comment}'
+
+                r: List[GroupInvite] = GroupInvite.get_all_not_finish()
+                if r:
+                    if msg:
+                        msg += '\n'
+                    msg += '群聊邀请：'
+                    for gi in r:
+                        if (group_info := self.api.get_group_info(gi.group_id)) is not None:
+                            group_name = f'{group_info.group_name}({gi.group_id})'
+                        else:
+                            group_name = f'{gi.group_id}'
+                        msg += f'\n[{gi.uuid}]{group_name} 来自 {self.api.get_nickname(gi.user_id)}({gi.user_id})'
+
+                if not msg:
+                    msg += '暂无任何请求。'
                 else:
-                    msg += '好友请求：无。'
+                    msg += self.INVITE_HELP_TEXT.replace('[UUID]', '[id]')
                 message['message'] = msg
                 self.api.send_msg(message)
                 return False
             elif msg[:2] in {'0 ', '1 ', '2 '}:  # 处理待办事项
                 action = msg[0]
                 uuid = msg[2:].strip()
-
                 uuid = html.unescape(uuid)
                 if not (uuid := re.match(r'\[?(\w+)]?', uuid)):
                     return True
                 uuid = uuid[1]
 
-                if fr := FriendRequest.get_or_none(FriendRequest.uuid == uuid, FriendRequest.is_finish == False):  # noqa: E712
+                if fr := FriendRequest.get_one_not_finish(uuid):
                     fr.finish(user_id)
                     if action == '1':
                         self.api.set_friend_add_request(fr.flag, True)
@@ -205,6 +265,16 @@ class MessageManager(metaclass=SingletonType):
                         msg = f'已拒绝好友请求：{fr.flag}。'
                     elif action == '0':
                         msg = f'已忽略好友请求：{fr.flag}。'
+                elif gi := GroupInvite.get_one_not_finish(uuid):
+                    gi.finish(user_id)
+                    if action == '1':
+                        self.api.set_group_add_request(gi.flag, GroupInviteType.INVITE, True)
+                        msg = f'已同意群聊邀请：{gi.flag}。'
+                    elif action == '2':
+                        self.api.set_group_add_request(gi.flag, GroupInviteType.INVITE, False)
+                        msg = f'已拒绝群聊邀请：{gi.flag}。'
+                    elif action == '0':
+                        msg = f'已忽略群聊邀请：{gi.flag}。'
                 else:
                     msg = '未找到该请求！'
                 message['message'] = msg

@@ -2,16 +2,16 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import uuid4
 
-from playhouse.apsw_ext import (BooleanField, CharField, DateTimeField,
-                                IntegerField)
+from peewee import CharField, IntegerField
+from playhouse.apsw_ext import BooleanField, DateTimeField
 
 from assets.database_tables.base_model import BaseModel
 
 
-class FriendRequest(BaseModel):
+class GroupInvite(BaseModel):
     flag: str = CharField(primary_key=True)
     user_id: int = IntegerField()
-    comment: str = CharField()
+    group_id: int = IntegerField()
     is_finish: bool = BooleanField(default=False)
     finish_by: int = IntegerField(null=True)
     finish_at: datetime = DateTimeField(null=True)
@@ -19,16 +19,17 @@ class FriendRequest(BaseModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uuid: str = str(uuid4().int)[:7]
-        if uuid not in self.UUIDS:
-            self.UUIDS[uuid] = 0
-            self.uuid = uuid
+        while not self.uuid:
+            uuid: str = str(uuid4().int)[:7]
+            if uuid not in self.UUIDS:
+                self.UUIDS[uuid] = 0
+                self.uuid = uuid
 
     created_at: datetime = DateTimeField(default=datetime.now, null=True)
     updated_at: datetime = DateTimeField(default=datetime.now, null=True)
 
     class Meta:
-        table_name = 'friend_request'
+        table_name = 'group_invite'
 
     # noinspection PyMethodOverriding
     def save(self, update=False):
@@ -39,7 +40,7 @@ class FriendRequest(BaseModel):
 
     def finish(self, user_id):
         """
-        完成好友申请
+        完成群聊邀请
 
         :param user_id: 完成者的QQ号
         :return: 影响的行数
@@ -53,15 +54,15 @@ class FriendRequest(BaseModel):
         return r
 
     @classmethod
-    def get_all_not_finish(cls) -> List['FriendRequest']:
-        """获取所有未完成的好友申请"""
-        return cls.select().where(cls.is_finish == False)  # noqa: E712
-
-    @classmethod
-    def get_or_none(cls, *query, **filters) -> 'FriendRequest':  # 增加类型提示
+    def get_or_none(cls, *query, **filters) -> 'GroupInvite':  # 增加类型提示
         return super().get_or_none(*query, **filters)
 
     @classmethod
-    def get_one_not_finish(cls, uuid: str) -> Optional['FriendRequest']:
-        """获取一个未完成的好友申请"""
+    def get_all_not_finish(cls) -> List['GroupInvite']:
+        """获取所有未完成的群聊邀请"""
+        return cls.select().where(cls.is_finish == False)  # noqa: E712
+
+    @classmethod
+    def get_one_not_finish(cls, uuid: str) -> Optional['GroupInvite']:
+        """获取一个未完成的群聊邀请"""
         return cls.get_or_none(cls.uuid == uuid, cls.is_finish == False)  # noqa: E712
