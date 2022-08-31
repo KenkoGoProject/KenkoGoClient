@@ -16,13 +16,13 @@ A Client of [KenkoGoServer](https://github.com/KenkoGoProject/KenkoGoServer)
 - [x] 插件 顺序调整
 - [x] API 鉴权
 - [x] 忽略某些私聊/群聊的消息
+- [x] 接受/拒绝好友请求
+- [x] 接受/拒绝群邀请
 - [ ] 运行时 插件 加载/卸载
-- [ ] 接受/拒绝好友请求
-- [ ] 接受/拒绝群邀请
 
-该项目是一个内置了部分功能的Client，我的想法是：如果只是想要框架，不如自己直接使用Websocket连接实例。
+该项目是一个内置了部分功能的KenkoGo客户端，我的想法是：如果只是想要框架，不如自己直接使用Websocket连接实例。
 当然，你也可以精简我的这个项目或编写属于你的 KenkoGoClient，
-也可以使用[Web版](https://kenkogo.akagiyui.com)界面: [kenkogo-webui](https://github.com/KenkoGoProject/kenkogo-webui)。
+或者使用[Web版](https://kenkogo.akagiyui.com)界面: [kenkogo-webui](https://github.com/KenkoGoProject/kenkogo-webui)。
 
 但还是建议使用 [NoneBot2](https://v2.nonebot.dev/) 等功能更完善的客户端。
 
