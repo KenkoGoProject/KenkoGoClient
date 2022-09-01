@@ -9,6 +9,7 @@ from assets.constants import (APP_DESCRIPTION, APP_NAME, VERSION_NUM,
 from module.database import Database
 from module.global_dict import Global
 from module.logger_ex import LoggerEx, LogLevel
+from module.message_queue import MessageQueue
 from module.plugin_manager import PluginManager
 from module.singleton_type import SingletonType
 from module.utils import kill_thread
@@ -30,6 +31,8 @@ class KenkoGo(metaclass=SingletonType):
         self.websocket_thread = None  # WebSocket 线程
         self.auto_reconnect = True  # 自动重连
         self.websocket_connected = False  # WebSocket 连接状态
+        self.message_queue = MessageQueue()  # 消息队列
+        self.queue_handle_thread = None  # 消息处理线程
 
         Global().database = Database()  # 初始化数据库
         Global().plugin_manager = PluginManager()  # 初始化插件管理器
@@ -50,6 +53,8 @@ class KenkoGo(metaclass=SingletonType):
 
     def start(self) -> None:
         """启动KenkoGo"""
+        self.queue_handle_thread = Thread(target=self.handle_queue, daemon=True)
+        self.queue_handle_thread.start()
         Global().database.connect()  # 建立数据库连接
         Global().plugin_manager.initialize_modules()  # 初始化插件
         Global().plugin_manager.enable_plugins()  # 启用插件
@@ -90,7 +95,7 @@ class KenkoGo(metaclass=SingletonType):
         self.websocket_connected = True
         self.auto_reconnect = True
         self.log.info('KenkoGoServer Connected!')
-        Global().plugin_manager.polling_event('connected')
+        self.message_queue.put('connected')
 
     def __on_websocket_message(self, _, message) -> None:
         """WebSocket收到消息"""
@@ -113,18 +118,18 @@ class KenkoGo(metaclass=SingletonType):
         else:
             # 其他消息，交由插件处理
             self.log.debug(f'Received message: {message}')
-            Global().plugin_manager.polling_event('message', message)
+            self.message_queue.put('message', message)
 
-    def __on_websocket_error(self, _, error) -> None:
+    def __on_websocket_error(self, _, error: Exception) -> None:
         """WebSocket连接发生错误"""
-        self.log.error(f'WebSocket Error: {error}')
+        self.log.exception(error)
 
     def __on_websocket_close(self, _, code, msg) -> None:
         """WebSocket连接关闭"""
         self.websocket_app.close()
         self.log.debug(f'Disconnected from server: {code}, {msg}')
         if self.websocket_connected:  # 如果之前已经连接上了，就告诉插件
-            Global().plugin_manager.polling_event('disconnected')
+            self.message_queue.put('disconnected')
         self.websocket_connected = False
         if self.websocket_app.keep_running:
             self.log.warning('WebSocket close failed. Try to stop it forcibly.')
@@ -135,3 +140,19 @@ class KenkoGo(metaclass=SingletonType):
     @staticmethod
     def __on_websocket_data(*_) -> None:
         Global().websocket_message_count += 1
+
+    def handle_queue(self):
+        while not Global().time_to_exit:
+            while not self.message_queue.empty():
+                event, message = self.message_queue.get()
+                try:
+                    if event == 'connected':
+                        Global().plugin_manager.polling_event('connected')
+                    elif event == 'disconnected':
+                        Global().plugin_manager.polling_event('disconnected')
+                    elif event == 'message':
+                        Global().plugin_manager.polling_event('message', message)
+                except Exception as e:
+                    self.log.exception(e)
+                self.message_queue.task_done()
+            time.sleep(0.1)

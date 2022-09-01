@@ -42,6 +42,6 @@ class Database(APSWDatabase, metaclass=SingletonType):
         self.KV = None
         self.UUIDS = None
         if super().close():
-            self.log.error('disconnect failed')
-        else:
             self.log.debug('disconnected')
+        else:
+            self.log.error('disconnect failed')

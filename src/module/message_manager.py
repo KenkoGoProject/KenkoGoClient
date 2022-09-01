@@ -288,8 +288,7 @@ class MessageManager(metaclass=SingletonType):
             elif message_type == 'group':
                 if msg == '?':  # 判断群是否在白名单中
                     group_id = message['group_id']
-                    group_info = self.api.get_group_info(group_id)['data']
-                    group_name = group_info['group_name']
+                    group_name = self.api.get_group_info(group_id).group_name
                     if group_id in self.config.whitelist_groups:
                         msg = f'群 {group_name}({group_id}) 在白名单中'
                     else:
@@ -299,8 +298,7 @@ class MessageManager(metaclass=SingletonType):
                     return False
                 elif msg == 'add':  # 将群加入白名单
                     group_id = message['group_id']
-                    group_info = self.api.get_group_info(group_id)['data']
-                    group_name = group_info['group_name']
+                    group_name = self.api.get_group_info(group_id).group_name
                     if group_id in self.config.whitelist_groups:
                         msg = f'群 {group_name}({group_id}) 已在白名单中'
                     else:
@@ -312,8 +310,7 @@ class MessageManager(metaclass=SingletonType):
                     return False
                 elif msg == 'del':  # 将群从白名单移除
                     group_id = message['group_id']
-                    group_info = self.api.get_group_info(group_id)['data']
-                    group_name = group_info['group_name']
+                    group_name = self.api.get_group_info(group_id).group_name
                     if group_id not in self.config.whitelist_groups:
                         msg = f'群 {group_name}({group_id}) 不在白名单中'
                     else:
