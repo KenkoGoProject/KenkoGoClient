@@ -1,7 +1,7 @@
 - [x] bug: 退出时关闭插件不保存状态
 - [x] bug: 销毁线程导致崩溃
+- [x] bug: 非administrator执行普通指令无需前缀
 - [ ] bug: 插件重载无效
-- [ ] bug: 非admin执行普通指令无需前缀
 ---
 - [x] feat: 自定义命令前缀
 - [x] feat: 屏蔽好友请求

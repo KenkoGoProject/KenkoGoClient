@@ -1,3 +1,7 @@
+## 0.4.6
+
+- fix: 修复了非administrator执行普通指令无需前缀的问题
+
 ## 0.4.5
 
 - fix: 修复了有多个administrator添加好友的提示文本错误的问题

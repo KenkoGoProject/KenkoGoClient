@@ -319,7 +319,7 @@ class MessageManager(metaclass=SingletonType):
                     self.api.send_msg(message)
                     return False
 
-        # 放行管理员消息
+        # 屏蔽各类消息
         if user_id not in self.config.administrators:
             # 屏蔽黑名单用户
             if user_id in self.config.block_users:
@@ -340,6 +340,9 @@ class MessageManager(metaclass=SingletonType):
                 if group_id in self.config.block_groups:
                     return False  # 屏蔽黑名单群聊
 
+        if not msg.startswith(command_prefix):
+            return True
+        msg = msg.removeprefix(command_prefix)
         if msg in {'help', '?'}:
             message['message'] = self.HELP_TEXT
             self.api.send_msg(message)
