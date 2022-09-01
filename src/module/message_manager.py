@@ -110,6 +110,11 @@ class MessageManager(metaclass=SingletonType):
         else:
             group_name = f'{group_id}'
 
+        if user_id in self.config.administrators:
+            if self.api.set_group_add_request(flag, GroupInviteType.INVITE, True):
+                self.log.info(f'已同意超级管理员 {stranger_info} 的群聊邀请：{group_name}')
+                return True
+
         def deal_thread():
             if self.api.is_in_group(group_id):
                 msg = f'已被 {stranger_name} 邀请进入了群聊：{group_name}。'
