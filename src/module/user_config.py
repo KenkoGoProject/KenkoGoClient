@@ -9,6 +9,7 @@ class UserConfig(metaclass=SingletonType):
     host = '127.0.0.1'  # 监听地址
     port = 18082  # 监听端口
     token = ''  # api token
+    multi_thread = True  # 启用多线程处理消息
     message_config = MessageConfig()  # 消息管理器配置
 
     config_data: YamlConfig = {}
@@ -30,6 +31,7 @@ class UserConfig(metaclass=SingletonType):
         self.port = int(self.config_data.get('port', self.port))
         self.host = str(self.config_data.get('host', self.host))
         self.token = str(self.config_data.get('token', self.token))
+        self.multi_thread = bool(self.config_data.get('multi_thread', self.multi_thread))
 
         # 读取消息管理器配置
         t = dict(self.config_data.get('message_manager'))
@@ -41,6 +43,7 @@ class UserConfig(metaclass=SingletonType):
         self.config_data['port'] = self.port
         self.config_data['host'] = self.host
         self.config_data['token'] = self.token
+        self.config_data['multi_thread'] = self.multi_thread
         self.config_data['message_manager'] = self.message_config.to_dict()
 
         self.log.debug(f'Config loaded: {dict(self.config_data)}')

@@ -12,10 +12,10 @@ from module.user_config import UserConfig
 from module.utils import change_console_title
 
 
-def signal_handler(self, sign, _) -> None:
+def signal_handler(sign, _) -> None:
     """信号处理器"""
     if sign in (signal.SIGINT, signal.SIGTERM):
-        self.log.debug(f'Received signal {sign}, Application exits.')
+        log.debug(f'Received signal {sign}, Application exits.')
         Global().time_to_exit = True  # 收到退出信号，标记退出
         raise KeyboardInterrupt
 

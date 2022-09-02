@@ -1,6 +1,8 @@
 host: "127.0.0.1"  # Server服务器监听地址
 port: 18082  # Server服务器端口
 token: "1050314133akagiyui"  # HTTP服务器访问令牌
+multi_thread: true  # 是否启用多线程
+
 message_manager:  # 消息管理器，提供了基础的自动化功能
   enable: true  # 启用消息管理器
   block_self: true  # 屏蔽自己账号的消息

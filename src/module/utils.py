@@ -154,6 +154,17 @@ def deep_iter(data: Any, depth=inf, current_depth=1) -> Generator[Any, None, Non
         yield [], data
 
 
+def get_screenshot() -> bytes:
+    """截屏"""
+    from io import BytesIO
+
+    from PIL import ImageGrab
+    with BytesIO() as f:
+        ImageGrab.grab(all_screens=True).save(f, 'PNG')
+        f.seek(0)
+        return f.read()
+
+
 if __name__ == '__main__':
     for i in deep_iter({
         'a': {

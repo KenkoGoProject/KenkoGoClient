@@ -1,8 +1,8 @@
 APP_NAME = 'KenkoGoClient'  # 应用名称
-AUTHOR_NAME = 'AkagiYui'  # 作者
-VERSION_NUM = 21  # 版本号
-VERSION_STR = '0.4.6'  # 版本名称
 APP_DESCRIPTION = 'A simple client of KenkoGoServer'  # 描述
+AUTHOR_NAME = 'AkagiYui'  # 作者
+VERSION_NUM = 22  # 版本号
+VERSION_STR = '0.4.7'  # 版本名称
 
 
 ADMIN_HELP_TEXT = 'ADMIN_HELP_TEXT', f"""超级管理员操作菜单：

@@ -16,6 +16,7 @@ from module.logger_ex import LoggerEx, LogLevel
 from module.message_config import MessageConfig
 from module.server_api import ServerApi
 from module.singleton_type import SingletonType
+from module.utils import get_screenshot
 
 
 class MessageManager(metaclass=SingletonType):
@@ -112,7 +113,7 @@ class MessageManager(metaclass=SingletonType):
 
         if user_id in self.config.administrators:
             if self.api.set_group_add_request(flag, GroupInviteType.INVITE, True):
-                self.log.info(f'已同意超级管理员 {stranger_info} 的群聊邀请：{group_name}')
+                self.log.info(f'已同意超级管理员 {stranger_name} 的群聊邀请：{group_name}')
                 return True
 
         def deal_thread():
@@ -177,7 +178,7 @@ class MessageManager(metaclass=SingletonType):
 
     def type_message(self, message: dict) -> bool:
         """收到 go-cqhttp 消息"""
-        msg: str = message['message'].strip()
+        raw_msg: str = message['raw_message'].strip()
         user_id: int = message['user_id']
         message_type: str = message['message_type']
         command_prefix = self.command_prefix
@@ -186,15 +187,11 @@ class MessageManager(metaclass=SingletonType):
         if self.config.block_self and user_id == message['self_id']:
             return False
 
-        # 全角转半角
-        if msg.startswith('！') and len(msg) > 1:
-            msg = f'!{msg[1:]}'
-
         # 管理员命令
         if user_id in self.config.administrators:
-            if not msg.startswith(command_prefix):
+            if not raw_msg.startswith(command_prefix):
                 return True
-            msg = msg.removeprefix(command_prefix)
+            msg = raw_msg.removeprefix(command_prefix)
             if msg == 'h':  # 发送管理员操作菜单
                 message['message'] = self.ADMIN_HELP_TEXT
                 self.api.send_msg(message)
@@ -246,7 +243,7 @@ class MessageManager(metaclass=SingletonType):
                         msg += f'\n[{gi.uuid}]{group_name} 来自 {self.api.get_nickname(gi.user_id)}({gi.user_id})'
 
                 if not msg:
-                    msg += '暂无任何请求。'
+                    msg += '暂无待办事项。'
                 else:
                     msg += self.INVITE_HELP_TEXT.replace('[UUID]', '[id]')
                 message['message'] = msg
@@ -342,9 +339,9 @@ class MessageManager(metaclass=SingletonType):
                 if group_id in self.config.block_groups:
                     return False  # 屏蔽黑名单群聊
 
-        if not msg.startswith(command_prefix):
+        if not raw_msg.startswith(command_prefix):
             return True
-        msg = msg.removeprefix(command_prefix)
+        msg = raw_msg.removeprefix(command_prefix)
         if msg in {'help', '?'}:
             message['message'] = self.HELP_TEXT
             self.api.send_msg(message)
@@ -382,15 +379,3 @@ class MessageManager(metaclass=SingletonType):
         """向管理员发送消息"""
         for user_id in self.config.administrators:
             yield self.api.send_private_msg(user_id, msg)
-
-
-def get_screenshot() -> bytes:
-    """截屏"""
-    from io import BytesIO
-
-    from PIL import ImageGrab
-
-    with BytesIO() as f:
-        ImageGrab.grab(all_screens=True).save(f, 'PNG')
-        f.seek(0)
-        return f.read()

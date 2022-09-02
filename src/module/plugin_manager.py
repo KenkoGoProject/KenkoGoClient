@@ -373,11 +373,14 @@ class PluginManager(metaclass=SingletonType):
 
     def polling_event(self, event: str, *args, **kwargs) -> None:
         """向所有插件发送事件"""
-        if event == 'message':
-            self.polling_message(*args, **kwargs)
-        elif event == 'connected':
-            self.polling_connected()
-        elif event == 'disconnected':
-            self.polling_disconnected()
-        else:
-            raise ValueError(f'Unknown event: {event}')
+        try:
+            if event == 'message':
+                self.polling_message(*args, **kwargs)
+            elif event == 'connected':
+                self.polling_connected()
+            elif event == 'disconnected':
+                self.polling_disconnected()
+            else:
+                raise ValueError(f'Unknown event: {event}')
+        except Exception as e:
+            self.log.exception(e)
