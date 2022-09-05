@@ -33,26 +33,26 @@ class SimplePlugin:
         self.path = Path(__file__).parent.absolute()
         sys.path.append(str(self.path))
 
-    def on_enable(self):
+    def on_enable(self) -> 'SimplePlugin':
         """插件被启用"""
         return self  # 务必返回self
 
-    def on_before_disable(self):
+    def on_before_disable(self) -> 'SimplePlugin':
         """插件将被禁用，你还可以处理一些事情"""
         return self  # 务必返回self
 
-    def on_disable(self):
+    def on_disable(self) -> 'SimplePlugin':
         """插件已被禁用，可以用于清理一些资源"""
         return self  # 务必返回self
 
-    def on_connect(self):
+    def on_connect(self) -> 'SimplePlugin':
         """已连接到KenkoGo服务器"""
         return self  # 务必返回self
 
-    def on_disconnect(self):
+    def on_disconnect(self) -> 'SimplePlugin':
         """已断开服务器连接"""
         return self  # 务必返回self
 
-    def on_message(self, message: dict):
+    def on_message(self, message: dict) -> bool:
         """收到 go-cqhttp 消息"""
         return True  # 返回True表示消息将被传递给下一个插件，返回False表示消息被拦截

@@ -48,12 +48,12 @@ class MessageManager(metaclass=SingletonType):
 
         self.bot_id: int = -1  # 自身 QQ 号
 
-    def enable(self):
+    def enable(self) -> None:
         """被启用"""
         self.is_enable = True
         self.log.debug('MessageManager enabled')
 
-    def disable(self):
+    def disable(self) -> None:
         """被禁用"""
         self.is_enable = False
         self.log.debug('MessageManager disabled')

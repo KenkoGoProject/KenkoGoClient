@@ -164,7 +164,8 @@ class GocqApi:
 
         :param group_id: 群号
         :param no_cache: 是否不使用缓存
-        :return: go-cqhttp API 返回值 """
+        :return: go-cqhttp API 返回值
+        """
         self.log.info(f'[get_group_info] {group_id}')
         d = {
             'group_id': group_id,
@@ -191,7 +192,8 @@ class GocqApi:
 
         :param user_id: 目标 QQ 账号
         :param no_cache: 是否不使用缓存
-        :return: go-cqhttp API 返回值 """
+        :return: go-cqhttp API 返回值
+        """
         self.log.info(f'[get_stranger_info] {user_id}')
         d = {
             'user_id': user_id,
@@ -216,7 +218,8 @@ class GocqApi:
         """获取 QQ 号的昵称
 
         :param user_id: 目标 QQ 账号
-        :return: QQ 昵称 """
+        :return: QQ 昵称
+        """
         if r := self.get_stranger_info(user_id):
             return r.nickname
         return None
@@ -225,7 +228,8 @@ class GocqApi:
         """获取消息，已知通过私聊回复得到的消息id有误
 
         :param message_id: 消息 ID
-        :return: go-cqhttp API 返回值 """
+        :return: go-cqhttp API 返回值
+        """
         self.log.info(f'[get_msg] {message_id}')
         d = {
             'message_id': message_id
@@ -239,8 +243,8 @@ class GocqApi:
         :param group_id: 群号
         :param user_id: 目标 QQ 账号，不填则为登录号
         :param no_cache: 是否不使用缓存
-        :return: 是否在群内 """
-
+        :return: 是否在群内
+        """
         self.log.info(f'[is_in_group] {group_id} {user_id if user_id else "self"}')
         if user_id is not None:
             d = {

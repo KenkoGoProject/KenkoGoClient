@@ -4,6 +4,27 @@ AUTHOR_NAME = 'AkagiYui'  # 作者
 VERSION_NUM = 23  # 版本号
 VERSION_STR = '0.4.8'  # 版本名称
 
+COMMAND_HELP_TEXT = """支持的命令 Available commands:
+/help: 显示此帮助 Show this help message
+/exit: 退出KenkoGoClient Quit the application
+
+/connect: 连接Server Connect to the server
+/disconnect: 断开连接 Disconnect from the server
+
+/info: 查看Client状态 Show the client status
+/status: 查看Server状态 Show the server status
+
+/start: 启动go-cqhttp Start go-cqhttp
+/stop: 停止go-cqhttp Stop go-cqhttp
+/qrcode: 显示登录二维码 Show qrcode of go-cqhttp
+
+/list：列出插件信息 List plugins
+/reload <name>: 重载插件 Reload plugins
+/enable <name>: 启用插件 Enable plugin
+/disable <name>: 禁用插件 Disable plugin
+/up <name>: 上移插件 Move plugin up
+/down <name>: 下移插件 Move plugin down
+"""
 
 ADMIN_HELP_TEXT = f"""超级管理员操作菜单：
 当前版本({VERSION_STR})支持的命令：

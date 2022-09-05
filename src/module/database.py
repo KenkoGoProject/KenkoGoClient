@@ -26,22 +26,29 @@ class Database(APSWDatabase, metaclass=SingletonType):
         self.KV: Optional[KeyValue] = None
         self.UUIDS: Optional[KeyValue] = None
 
-    def connect(self, *args):
-        if super().connect():
-            self.log.debug('connected')
-        else:
-            self.log.error('connection failed')
-            raise ConnectionError('connection failed')
-        self.create_tables(self.tables)
-        self.KV = KeyValue(database=self, table_name='kv')
-        self.UUIDS = KeyValue(database=self, table_name='uuids')
-        del self.UUIDS[self.UUIDS.value == 0]
+    def connect(self, *args) -> bool:
+        try:
+            if super().connect():
+                self.log.debug('connected')
+                return True
+            else:
+                self.log.error('connection failed')
+                raise ConnectionError('connection failed')
+        finally:
+            self.create_tables(self.tables)
+            self.KV = KeyValue(database=self, table_name='kv')
+            self.UUIDS = KeyValue(database=self, table_name='uuids')
+            del self.UUIDS[self.UUIDS.value == 0]
 
-    def close(self):
-        del self.UUIDS[self.UUIDS.value == 0]
-        self.KV = None
-        self.UUIDS = None
+    def close(self) -> bool:
+        if isinstance(self.UUIDS, KeyValue):
+            del self.UUIDS[self.UUIDS.value == 0]
+            self.UUIDS = None
+        if isinstance(self.KV, KeyValue):
+            self.KV = None
         if super().close():
             self.log.debug('disconnected')
+            return True
         else:
             self.log.error('disconnect failed')
+            return False

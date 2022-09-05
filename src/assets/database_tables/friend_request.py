@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Union
 from uuid import uuid4
 
 from playhouse.apsw_ext import (BooleanField, CharField, DateTimeField,
@@ -31,13 +31,13 @@ class FriendRequest(BaseModel):
         table_name = 'friend_request'
 
     # noinspection PyMethodOverriding
-    def save(self, update=False):
+    def save(self, update=False) -> Union[bool, int]:
         if update:
             self.updated_at = datetime.now()
         self.UUIDS[self.uuid] = 1
         return super().save(not update)
 
-    def finish(self, user_id):
+    def finish(self, user_id) -> Union[bool, int]:
         """
         完成好友申请
 

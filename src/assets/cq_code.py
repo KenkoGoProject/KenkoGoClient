@@ -48,7 +48,7 @@ class CqCode:
     @staticmethod
     def image_local(file_path: str, image_type: str = 'normal',
                     use_cache: bool = True, show_id: int = 40000, threads: int = 2) -> str:
-        """图片 [CQ:image,file=http://baidu.com/1.jpg,c=2]
+        """图片 [CQ:image,file=1.jpg,c=2]
         使用本地文件
 
         :param file_path: 图片路径

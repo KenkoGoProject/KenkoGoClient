@@ -1,5 +1,6 @@
 from rich.table import Table
 
+from assets.constants import COMMAND_HELP_TEXT
 from module.client_api import ClientApi
 from module.global_dict import Global
 from module.logger_ex import LoggerEx, LogLevel
@@ -7,28 +8,6 @@ from module.plugin_manager import PluginManager
 from module.server_api import ServerApi
 from module.singleton_type import SingletonType
 from module.utils import decode_qrcode, print_qrcode
-
-HELP_TEXT = """支持的命令 Available commands:
-/help: 显示此帮助 Show this help message
-/exit: 退出KenkoGoClient Quit the application
-
-/connect: 连接Server Connect to the server
-/disconnect: 断开连接 Disconnect from the server
-
-/info: 查看Client状态 Show the client status
-/status: 查看Server状态 Show the server status
-
-/start: 启动go-cqhttp Start go-cqhttp
-/stop: 停止go-cqhttp Stop go-cqhttp
-/qrcode: 显示登录二维码 Show qrcode of go-cqhttp
-
-/list：列出插件信息 List plugins
-/reload <name>: 重载插件 Reload plugins
-/enable <name>: 启用插件 Enable plugin
-/disable <name>: 禁用插件 Disable plugin
-/up <name>: 上移插件 Move plugin up
-/down <name>: 下移插件 Move plugin down
-"""
 
 
 class CommandHandler(metaclass=SingletonType):
@@ -38,9 +17,13 @@ class CommandHandler(metaclass=SingletonType):
             self.log.set_level(LogLevel.DEBUG)
 
     def add(self, command: str) -> None:
+        """接收指令
+
+        :param command: 指令
+        """
         self.log.debug(f'Get command: {command}')
         if command in {'/help', '/h', '?', '/?', '？'}:
-            self.log.print(HELP_TEXT)
+            self.log.print(COMMAND_HELP_TEXT)
         elif command == '/exit':
             Global().time_to_exit = True
         elif command == '/connect':
@@ -82,6 +65,10 @@ class CommandHandler(metaclass=SingletonType):
             self.log.error('Invalid Command')
 
     def enable_plugin(self, name) -> None:
+        """启用插件
+
+        :param name: 插件名
+        """
         if not name:
             return
         if not (plugin := PluginManager().get_plugin(name)):
@@ -90,6 +77,10 @@ class CommandHandler(metaclass=SingletonType):
         PluginManager().enable_plugin(plugin)
 
     def disable_plugin(self, name) -> None:
+        """禁用插件
+
+        :param name: 插件名
+        """
         if not name:
             return
         if not (plugin := PluginManager().get_plugin(name)):
@@ -97,7 +88,11 @@ class CommandHandler(metaclass=SingletonType):
             return
         PluginManager().disable_plugin(plugin)
 
-    def up_plugin(self, name):
+    def up_plugin(self, name) -> None:
+        """上移插件
+
+        :param name: 插件名
+        """
         if not name:
             return
         if not (plugin := PluginManager().get_plugin(name)):
@@ -107,7 +102,11 @@ class CommandHandler(metaclass=SingletonType):
             self.log.error(f'Plugin {name} is already at the top')
             return
 
-    def down_plugin(self, name):
+    def down_plugin(self, name) -> None:
+        """下移插件
+
+        :param name: 插件名
+        """
         if not name:
             return
         if not (plugin := PluginManager().get_plugin(name)):
@@ -117,7 +116,11 @@ class CommandHandler(metaclass=SingletonType):
             self.log.error(f'Plugin {name} is already at the bottom')
             return
 
-    def reload_plugin(self, name):
+    def reload_plugin(self, name: str) -> None:
+        """重载插件
+
+        :param name: 插件名
+        """
         if not name:
             return
         if not (plugin := PluginManager().get_plugin(name)):

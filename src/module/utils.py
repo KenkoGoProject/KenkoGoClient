@@ -137,7 +137,7 @@ def kill_thread(thread: Thread) -> None:
         raise SystemError('PyThreadState_SetAsyncExc failed')
 
 
-def deep_iter(data: Any, depth=inf, current_depth=1) -> Generator[Any, None, None]:
+def deep_iter(data: Any, depth=inf, current_depth=1) -> Generator:
     """
     递归深度遍历数据
 

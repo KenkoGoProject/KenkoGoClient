@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Union
 from uuid import uuid4
 
 from peewee import CharField, IntegerField
@@ -32,13 +32,13 @@ class GroupInvite(BaseModel):
         table_name = 'group_invite'
 
     # noinspection PyMethodOverriding
-    def save(self, update=False):
+    def save(self, update=False) -> Union[bool, int]:
         if update:
             self.updated_at = datetime.now()
         self.UUIDS[self.uuid] = 1
         return super().save(not update)
 
-    def finish(self, user_id):
+    def finish(self, user_id: int) -> Union[bool, int]:
         """
         完成群聊邀请
 

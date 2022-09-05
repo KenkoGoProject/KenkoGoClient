@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Type
+from typing import Any, Type
 
 from peewee import IntegerField
 
@@ -11,8 +11,8 @@ class EnumField(IntegerField):
         super(IntegerField, self).__init__(*args, **kwargs)
         self.choices = choices
 
-    def db_value(self, value):
+    def db_value(self, value: Enum) -> Any:
         return value.value
 
-    def python_value(self, value):
+    def python_value(self, value: str) -> Enum:
         return self.choices(value)

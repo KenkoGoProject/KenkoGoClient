@@ -2,7 +2,7 @@ import json
 import time
 from concurrent.futures import ThreadPoolExecutor
 from threading import Thread
-from typing import Union
+from typing import Optional, Union
 
 from websocket import WebSocketApp
 
@@ -144,7 +144,7 @@ class KenkoGo(metaclass=SingletonType):
         """
         self.log.exception(error)
 
-    def __on_websocket_close(self, _, code, msg) -> None:
+    def __on_websocket_close(self, _, code: Optional[int], msg: Optional[str]) -> None:
         """WebSocket连接关闭
 
         :param code: 关闭代码

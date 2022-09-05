@@ -47,12 +47,11 @@ class MessageConfig(metaclass=SingletonType):
             'block_groups': self.block_groups,
         }
 
-    def __setattr__(self, key, value):
+    def __setattr__(self, key, value) -> None:
         super(MessageConfig, self).__setattr__(key, value)
-        if self.save and isinstance(self.save, Callable):
-            self.save()
+        self.save()
 
-    def update(self, config: dict):
+    def update(self, config: dict) -> None:
         for key, value in config.items():
             if hasattr(self, key):
                 t = type(getattr(self, key))

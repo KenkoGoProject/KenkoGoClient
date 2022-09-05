@@ -217,7 +217,10 @@ class PluginManager(metaclass=SingletonType):
                 self.log.debug(f'New module [magenta]{module_name}[/magenta] loaded', extra={'markup': True})
 
     def enable_plugins(self, all_=False) -> None:
-        """启用插件"""
+        """启用插件
+
+        :param all_: 是否启用所有插件
+        """
         for plugin_ in self.plugin_list:
             if (not plugin_.loaded) or (not plugin_.initialized) or plugin_.enable:
                 continue
@@ -226,7 +229,10 @@ class PluginManager(metaclass=SingletonType):
             self.enable_plugin(plugin_)
 
     def disable_all_plugin(self, save: bool = False) -> None:
-        """禁用所有插件"""
+        """禁用所有插件
+
+        :param save: 是否保存配置
+        """
         for plugin_ in self.plugin_list:
             if not plugin_.enable:
                 continue
