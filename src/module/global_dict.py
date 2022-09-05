@@ -1,5 +1,6 @@
 import platform
 from pathlib import Path
+from typing import TYPE_CHECKING, Optional
 
 import psutil
 
@@ -9,6 +10,13 @@ from module.singleton_type import SingletonType
 from module.utils import (get_script_memory_usage, get_script_uptime,
                           get_system_description, get_system_memory_usage,
                           get_system_uptime)
+
+if TYPE_CHECKING:
+    from kenko_go import KenkoGo
+    from module.command_handler import CommandHandler
+    from module.database import Database
+    from module.plugin_manager import PluginManager
+    from module.user_config import UserConfig
 
 
 class Global(metaclass=SingletonType):
@@ -29,11 +37,11 @@ class Global(metaclass=SingletonType):
     # 共享的对象 #
     ############
 
-    user_config = None  # 用户配置  # type: UserConfig
-    database = None  # 数据库  # type: Database
-    command_handler = None  # 命令处理器  # type: CommandHandler
-    kenko_go = None  # 应用程序  # type: KenkoGo
-    plugin_manager = None  # 插件管理器  # type: PluginManager
+    user_config: 'UserConfig' = None  # 用户配置
+    database: 'Database' = None  # 数据库
+    command_handler: 'CommandHandler' = None  # 命令处理器
+    kenko_go: Optional['KenkoGo'] = None  # 应用程序
+    plugin_manager: 'PluginManager' = None  # 插件管理器
 
     args_known = ()  # 命令行参数
     args_unknown = ()  # 未知命令
@@ -65,7 +73,7 @@ class Global(metaclass=SingletonType):
             system_uptime=get_system_uptime(),
             kenkogo_uptime=get_script_uptime(),
 
-            connected=self.kenko_go.websocket_connected,
+            connected=self.kenko_go.websocket_connected if self.kenko_go else False,
             app_name=APP_NAME,
             version=VERSION_STR,
             websocket_message_count=self.websocket_message_count,

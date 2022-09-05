@@ -1,3 +1,8 @@
+## 0.4.8
+
+- perf: 将MessageManager独立出PluginManager
+- style: 优化了部分代码结构
+
 ## 0.4.7
 
 - fix: 修复了超级管理员无法触发普通指令的问题

@@ -81,9 +81,8 @@ class ServerApi:
         if result.headers['Content-Type'] != 'image/png':
             self.log.error('Invalid Content-Type.')
             return None
-        result = result.content
         self.log.debug('Qrcode got.')
-        return result
+        return result.content
 
     def get_status(self) -> Optional[ServerStatus]:
         """获取服务器状态

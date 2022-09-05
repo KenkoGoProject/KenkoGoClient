@@ -2,7 +2,6 @@ import base64
 import contextlib
 import ctypes
 import hashlib
-import inspect
 import os
 import platform
 from datetime import datetime
@@ -127,9 +126,9 @@ def get_script_uptime() -> str:
 def kill_thread(thread: Thread) -> None:
     """强制结束线程，注意不得设计为类方法！"""
     exctype = SystemExit
+    if not (thread.is_alive() and thread.ident):
+        return
     tid = ctypes.c_long(thread.ident)
-    if not inspect.isclass(exctype):
-        exctype = type(exctype)
     res = ctypes.pythonapi.PyThreadState_SetAsyncExc(tid, ctypes.py_object(exctype))
     if res == 0:
         raise ValueError('invalid thread id')

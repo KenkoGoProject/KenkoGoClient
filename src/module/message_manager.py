@@ -29,7 +29,7 @@ class MessageManager(metaclass=SingletonType):
         if Global().debug_mode:
             self.log.set_level(LogLevel.DEBUG)
 
-        self.enable = False
+        self.is_enable = False
 
         user_config = Global().user_config
         host_and_port = f'{user_config.host}:{user_config.port}'
@@ -41,31 +41,37 @@ class MessageManager(metaclass=SingletonType):
 
         self.config: MessageConfig = user_config.message_config
         self.command_prefix = self.config.command_prefix
-        for i in [ADMIN_HELP_TEXT, HELP_TEXT, INVITE_HELP_TEXT]:
-            setattr(self, i[0], i[1].replace('[CP]', self.command_prefix))
+
+        self.ADMIN_HELP_TEXT = ADMIN_HELP_TEXT.replace('[CP]', self.command_prefix)
+        self.HELP_TEXT = HELP_TEXT.replace('[CP]', self.command_prefix)
+        self.INVITE_HELP_TEXT = INVITE_HELP_TEXT.replace('[CP]', self.command_prefix)
 
         self.bot_id: int = -1  # 自身 QQ 号
 
-    def on_enable(self):
+    def enable(self):
         """被启用"""
-        self.enable = True
+        self.is_enable = True
         self.log.debug('MessageManager enabled')
-        return self
 
-    def on_connect(self):
+    def disable(self):
+        """被禁用"""
+        self.is_enable = False
+        self.log.debug('MessageManager disabled')
+
+    def on_connect(self) -> bool:
         """已连接到KenkoGo服务器"""
         if r := self.api.get_login_info():
             self.bot_id = r.user_id
-        return self
+        return True
 
-    def on_disconnect(self):
+    def on_disconnect(self) -> bool:
         """已断开服务器连接"""
-        return self
+        return True
 
-    def on_message(self, message: dict):
+    def on_message(self, message: dict) -> bool:
         """收到 go-cqhttp 消息"""
-        if not self.enable:
-            return self
+        if not self.is_enable:
+            return True
         post_type = message['post_type']
         if post_type == 'message':
             return self.type_message(message)
@@ -112,9 +118,9 @@ class MessageManager(metaclass=SingletonType):
             group_name = f'{group_id}'
 
         if user_id in self.config.administrators:
-            if self.api.set_group_add_request(flag, GroupInviteType.INVITE, True):
-                self.log.info(f'已同意超级管理员 {stranger_name} 的群聊邀请：{group_name}')
-                return True
+            self.api.set_group_add_request(flag, GroupInviteType.INVITE, True)
+            self.log.info(f'已同意超级管理员 {stranger_name} 的群聊邀请：{group_name}')
+            return True
 
         def deal_thread():
             if self.api.is_in_group(group_id):
@@ -224,10 +230,10 @@ class MessageManager(metaclass=SingletonType):
             elif msg == 'todo':  # 发送待办事项
                 msg = ''
 
-                r: List[FriendRequest] = FriendRequest.get_all_not_finish()
-                if r:
+                frs: List[FriendRequest] = FriendRequest.get_all_not_finish()
+                if frs:
                     msg += '好友请求：'
-                    for gi in r:
+                    for gi in frs:
                         msg += f'\n[{gi.uuid}]{self.api.get_nickname(gi.user_id)}({gi.user_id})：{gi.comment}'
 
                 r: List[GroupInvite] = GroupInvite.get_all_not_finish()
@@ -251,11 +257,11 @@ class MessageManager(metaclass=SingletonType):
                 return False
             elif msg[:2] in {'0 ', '1 ', '2 '}:  # 处理待办事项
                 action = msg[0]
-                uuid = msg[2:].strip()
-                uuid = html.unescape(uuid)
-                if not (uuid := re.match(r'\[?(\w+)]?', uuid)):
+                raw_uuid = msg[2:].strip()
+                raw_uuid = html.unescape(raw_uuid)
+                if not (uuid_groups := re.match(r'\[?(\w+)]?', raw_uuid)):
                     return True
-                uuid = uuid[1]
+                uuid: str = uuid_groups[1]
 
                 if fr := FriendRequest.get_one_not_finish(uuid):
                     fr.finish(user_id)

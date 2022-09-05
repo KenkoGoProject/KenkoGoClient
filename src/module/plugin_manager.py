@@ -15,7 +15,6 @@ from module.client_api import ClientApi
 from module.global_dict import Global
 from module.gocq_api import GocqApi
 from module.logger_ex import LoggerEx, LogLevel
-from module.message_manager import MessageManager
 from module.server_api import ServerApi
 from module.singleton_type import SingletonType
 from module.test_plugin import TestPlugin
@@ -39,9 +38,6 @@ class PluginManager(metaclass=SingletonType):
         self.plugin_list: List[Plugin] = []  # 插件列表
         self.plugins_loaded = False  # 插件是否已经加载
         self.local_config_path = Path(Global().root_dir, 'plugin.json')  # 插件配置文件路径
-        self.message_manager = MessageManager()  # 消息管理器
-        if Global().user_config.message_config.enable:
-            self.message_manager.on_enable()
 
     def save_config(self) -> bool:
         """保存插件配置"""
@@ -102,7 +98,7 @@ class PluginManager(metaclass=SingletonType):
         if hasattr(module, 'PLUGIN_CLASS_NAME'):
             class_name: str = module.PLUGIN_CLASS_NAME
         else:
-            class_name: str = camelize(plugin.module_name.removesuffix('_kenko'))  # 将模块转换为类名
+            class_name = camelize(plugin.module_name.removesuffix('_kenko'))  # 将模块转换为类名
         plugin.class_name = class_name
         if not hasattr(module, class_name):
             self.log.error(f'Class [bold magenta]{class_name} [red]not found in {module_name}', extra={'markup': True})
@@ -208,9 +204,8 @@ class PluginManager(metaclass=SingletonType):
         self.log.debug('Loading local modules')
         plugin_dir = Path('plugin')
         for plugin_path in plugin_dir.iterdir():
-            plugin_path = plugin_path.name  # 去除路径
-            plugin_path = str(plugin_path)
-            module_name = plugin_path.removesuffix('.py')  # 使得包也可以被导入
+            plugin_path_name: str = plugin_path.name  # 去除路径
+            module_name = plugin_path_name.removesuffix('.py')  # 使得包也可以被导入
             if not module_name.endswith('_kenko'):
                 continue  # 不以_kenko结尾的包/模块不被导入
             for plugin in self.plugin_list:
@@ -337,8 +332,6 @@ class PluginManager(metaclass=SingletonType):
         :param message: 消息
         :return: None
         """
-        if self.message_manager.on_message(message) is not True:
-            return
         for plugin_ in self.plugin_list:
             if not plugin_.enable:
                 continue
@@ -350,7 +343,6 @@ class PluginManager(metaclass=SingletonType):
 
     def polling_connected(self) -> None:
         """插件调用 on_connect"""
-        self.message_manager.on_connect()
         for plugin_ in self.plugin_list:
             if not plugin_.enable:
                 continue
@@ -361,8 +353,6 @@ class PluginManager(metaclass=SingletonType):
 
     def polling_disconnected(self) -> None:
         """插件调用 on_disconnect"""
-
-        self.message_manager.on_disconnect()
         for plugin_ in self.plugin_list:
             if not plugin_.enable:
                 continue
@@ -370,17 +360,3 @@ class PluginManager(metaclass=SingletonType):
                 plugin_.obj.on_disconnect()
             except Exception as e:
                 self.log.exception(e)
-
-    def polling_event(self, event: str, *args, **kwargs) -> None:
-        """向所有插件发送事件"""
-        try:
-            if event == 'message':
-                self.polling_message(*args, **kwargs)
-            elif event == 'connected':
-                self.polling_connected()
-            elif event == 'disconnected':
-                self.polling_disconnected()
-            else:
-                raise ValueError(f'Unknown event: {event}')
-        except Exception as e:
-            self.log.exception(e)

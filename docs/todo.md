@@ -24,12 +24,12 @@
 - [ ] feat: 为 go-cqhttp API 建立数据类型
 - [ ] feat: 完善 CoolQ 风格事件
 - [ ] feat: 好友/群聊请求消息添加头像
-- [ ] feat: 将MessageManager独立出PluginManager
 - [ ] feat: 日/周/月词云
 - [ ] feat: ~~删除好友请求记录~~（伪需求）
 - [ ] feat: ~~允许发送临时会话消息~~（容易被冻结，无测试条件）
 ---
 - [x] perf: 简化用户同意好友请求的交互
+- [x] perf: 将MessageManager独立出PluginManager
 - [ ] perf: 黑白名单迁移到数据库
 ---
 - [x] docs: 更新插件文档
