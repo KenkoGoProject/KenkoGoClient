@@ -142,6 +142,9 @@ class KenkoGo(metaclass=SingletonType):
 
         :param error: 错误信息
         """
+        if isinstance(error, ConnectionRefusedError):
+            self.log.error(f'Connection refused: {error}')
+            return
         self.log.exception(error)
 
     def __on_websocket_close(self, _, code: Optional[int], msg: Optional[str]) -> None:
