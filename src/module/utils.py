@@ -124,7 +124,7 @@ def get_script_uptime() -> str:
 
 
 def kill_thread(thread: Thread) -> None:
-    """强制结束线程，注意不得设计为类方法！"""
+    """强制结束线程，注意不得设计为对象方法！"""
     exctype = SystemExit
     if not (thread.is_alive() and thread.ident):
         return
