@@ -16,7 +16,7 @@ message_manager:  # 消息管理器，提供了基础的自动化功能
   block_friend_request: false  # 屏蔽好友请求
   block_group_invite: false  # 屏蔽群聊邀请
   white_mode: false  # 白名单模式
-  whitelist_users: !! set {} # 白名单用户列表
-  whitelist_groups: !! set {} # 白名单群列表
+  whitelist_users: !!set {} # 白名单用户列表
+  whitelist_groups: !!set {} # 白名单群列表
   block_users: !!set {}  # 屏蔽用户列表
   block_groups: !!set {}  # 屏蔽群列表
