@@ -10,6 +10,7 @@ src/plugin.json
 *.png
 *.mp3
 *.db
+.__atomic-*
 src/plugin
 !src/plugin/goodbye_world_kenko
 !src/plugin/coolq_kenko.py
